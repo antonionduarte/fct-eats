@@ -2,16 +2,16 @@
 
 -- Ratings table
 CREATE TABLE Ratings (
-    stars NUMBER(1),
-    compliment VARCHAR2(100),
+	stars NUMBER(1),
+	compliment VARCHAR2(100),
 	orderId NUMBER(20)
 );
 
 -- Has_Discount table
 
 CREATE TABLE Has_Discount (
-    email VARCHAR2(256),
-    code VARCHAR2(30),
+	email VARCHAR2(256),
+	code VARCHAR2(30),
 	discountState VARCHAR2(10)
 );
 
@@ -33,7 +33,7 @@ CREATE TABLE Has_Categories (
 -- Used_Discount table
 
 CREATE TABLE Used_Discount (
-    code VARCHAR2(30),
+	code VARCHAR2(30),
 	orderId NUMBER(20)
 );
 
@@ -202,16 +202,13 @@ BEGIN
   IF (clientCity <> restaurantCity)
   ---THROW APPLICATION ERROR HERE---
   END IF;
-
 END;
-
 
 -- Functions and Views
 
-CREATE FUNCTION user_city(userEmail VARCHAR2(256))
+CREATE FUNCTION user_city (userEmail VARCHAR2(256))
 RETURN VARCHAR2(50)
-IS
-r VARCHAR2(50);
+IS r VARCHAR2(50);
 BEGIN
   SELECT city INTO r
   FROM Users
@@ -220,7 +217,7 @@ BEGIN
   RETURN r;
 END;
 
-CREATE FUNCTION available_restaurants(clientCity TEXT)
+CREATE FUNCTION available_restaurants (clientCity TEXT)
 RETURN TABLE
 IS
 r TABLE;
