@@ -8,7 +8,6 @@ CREATE TABLE Ratings (
 );
 
 -- Has_Discount table
-
 CREATE TABLE Has_Discount (
 	email VARCHAR2(256),
 	code VARCHAR2(30),
@@ -16,7 +15,6 @@ CREATE TABLE Has_Discount (
 );
 
 -- Ordered_Food table
-
 CREATE TABLE Ordered_Food (
 	menuName VARCHAR2(50),
 	restaurantName VARCHAR2(50),
@@ -24,14 +22,12 @@ CREATE TABLE Ordered_Food (
 );
 
 -- Has_Categories table
-
 CREATE TABLE Has_Categories (
     categoryName VARCHAR2(50),
 	restaurantName VARCHAR2(50)
 );
 
 -- Used_Discount table
-
 CREATE TABLE Used_Discount (
 	code VARCHAR2(30),
 	orderId NUMBER(20)
@@ -184,7 +180,6 @@ ALTER TABLE Has_Discount ADD CONSTRAINT fk_has_discount2 FOREIGN KEY (code) REFE
 ---OR THIS TRIGGER WILL NOT WORK---
 
 --- Ensuring that no orders have customers and restaurants from diff cities ---
-
 CREATE TRIGGER placing_order
 BEFORE INSERT ON Ordered_Food
 DECLARE 
@@ -202,6 +197,19 @@ BEGIN
   IF (clientCity <> restaurantCity)
   ---THROW APPLICATION ERROR HERE---
   END IF;
+END;
+
+--- Ensuring that an Order can only have one associated Discount.
+CREATE TRIGGER discount_usage_limit
+BEFORE INSERT ON Used_Discount
+BEGIN
+    IF
+        ((SELECT COUNT (*) 
+        FROM Used_Discount INNER JOIN Orders USING (orderID)) > 1)
+        WHERE orderID = :new.orderID
+        GROUP BY orderID) > 0)
+    THEN Raise_Application_Error (-20420, 'Limit of discounts per order exceeded.')
+    END IF;
 END;
 
 -- Functions and Views
@@ -226,7 +234,7 @@ BEGIN
 
   LOOP
 
-  IF(restaurant.city = clientCity)
+  IF (restaurant.city = clientCity)
 	INSERT INTO r VALUES restaurant; ---unsure if this works---
   END IF;
 
