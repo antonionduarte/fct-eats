@@ -116,7 +116,7 @@ ALTER TABLE Menus ADD CONSTRAINT positive_price CHECK (price >= 0);
 
 -- Orders table
 CREATE TABLE Orders ( 
-	orderID INTEGER,
+	orderID NUMBER(20),
 	clientEmail VARCHAR2 (254),
 	courierEmail VARCHAR2 (254),
 	tip NUMBER (3,2),
@@ -160,7 +160,7 @@ ALTER TABLE Restaurants ADD CONSTRAINT positive_deliveryFee CHECK (deliveryFee >
 
 -- Discounts table
 CREATE TABLE Discounts ( 
-	code TEXT,
+	code VARCHAR2(30),
 	percentage NUMBER (3,2) 
 );
 
