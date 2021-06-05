@@ -1,6 +1,6 @@
 -- Create tables and Restrictions
 
-<<<<<<< HEAD
+-- Ratings table
 CREATE TABLE Ratings (
     stars NUMBER(1)
     compliment VARCHAR2(100)
@@ -45,7 +45,7 @@ CREATE TABLE Used_Discount (
 
 ALTER TABLE Used_Discount ADD CONSTRAINT fk_code FOREIGN KEY (code) REFERENCES Discounts (code);
 ALTER TABLE Used_Discount ADD CONSTRAINT fk_orderId FOREIGN KEY (orderId) REFERENCES Orders (orderId);
-=======
+
 -- Address table
 CREATE TABLE Address (
 	city TEXT,
@@ -167,7 +167,6 @@ CREATE TABLE Discounts (
 ALTER TABLE Discounts ADD CONSTRAINT pk_discounts PRIMARY KEY (code);
 ALTER TABLE Discounts ADD CONSTRAINT null_discounts NOT NULL (percentage);
 ALTER TABLE Discounts ADD CONSTRAINT positive_percentage CHECK (percentage >= 0); 
->>>>>>> cf1136c1c27331e09eb1a75b812500cf6b97a876
 
 -- Triggers
 
