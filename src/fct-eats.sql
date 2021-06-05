@@ -80,7 +80,7 @@ CREATE TABLE Menus (
 
 -- Orders table
 CREATE TABLE Orders ( 
-	orderID INTEGER,
+	orderID NUMBER(20),
 	clientEmail VARCHAR2 (254),
 	courierEmail VARCHAR2 (254),
 	tip NUMBER (3,2),
