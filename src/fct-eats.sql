@@ -183,8 +183,8 @@ ALTER TABLE Has_Discount ADD CONSTRAINT fk_has_discount2 FOREIGN KEY (code) REFE
 CREATE TRIGGER placing_order
 BEFORE INSERT ON Ordered_Food
 DECLARE 
-	clientCity TEXT;
-	restaurantCity TEXT; 
+	clientCity VARCHAR2(50);
+	restaurantCity VARCHAR2(50); 
 BEGIN
   SELECT city INTO restaurantCity
   FROM Restaurants
