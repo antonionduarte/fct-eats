@@ -205,7 +205,7 @@ BEFORE INSERT ON Used_Discount
 BEGIN
     IF
         ((SELECT COUNT (*) 
-        FROM Used_Discount INNER JOIN Orders USING (orderID)) > 1)
+        FROM Used_Discount INNER JOIN Orders USING (orderID)
         WHERE orderID = :new.orderID
         GROUP BY orderID) > 0)
     THEN Raise_Application_Error (-20420, 'Limit of discounts per order exceeded.')
