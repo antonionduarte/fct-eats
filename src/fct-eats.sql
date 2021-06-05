@@ -18,6 +18,7 @@ CREATE TABLE Order( orderID INTEGER,
 
 ALTER TABLE Order ADD CONSTRAINT pk_order PRIMARY KEY(orderID);
 ALTER TABLE Order ADD CONSTRAINT unique_orderID UNIQUE (orderID);
+ALTER TABLE Order ADD CONSTRAINT positive_orderID CHECK(orderID >= 0);
 ALTER TABLE Order ADD CONSTRAINT fk_order1 FOREIGN KEY(clientEmail) REFERENCES Clients(clientEmail);
 ALTER TABLE Order ADD CONSTRAINT fk_order2 FOREIGN KEY(courierEmail) REFERENCES Couriers(courierEmail);
 ALTER TABLE Order ADD CONSTRAINT positive_tip CHECK(tip >= 0);
