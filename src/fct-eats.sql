@@ -11,7 +11,7 @@ CREATE TABLE Ratings (
 CREATE TABLE Has_Discount (
 	email VARCHAR2(256),
 	code VARCHAR2(30),
-	discountState VARCHAR2(10)
+	discountUsed BOOLEAN
 );
 
 -- Ordered_Food table
@@ -23,7 +23,7 @@ CREATE TABLE Ordered_Food (
 
 -- Has_Categories table
 CREATE TABLE Has_Categories (
-    categoryName VARCHAR2(50),
+	categoryName VARCHAR2(50),
 	restaurantName VARCHAR2(50)
 );
 
@@ -149,7 +149,7 @@ ALTER TABLE Couriers ADD CONSTRAINT null_courier NOT NULL (email, driverLicense,
 ALTER TABLE Clients ADD CONSTRAINT unique_email UNIQUE (email);
 ALTER TABLE Clients ADD CONSTRAINT pk_client PRIMARY KEY (email);
 ALTER TABLE Clients ADD CONSTRAINT fk_client FOREIGN KEY (email) REFERENCES Users (email); 
-ALTER TABLE Clients ADD CONSTRAINT valid_payment CHECK (paymentMethod IN("card", "cash"));
+ALTER TABLE Clients ADD CONSTRAINT valid_payment CHECK (paymentMethod IN ("card", "cash"));
 ALTER TABLE Clients ADD CONSTRAINT null_client NOT NULL (email, paymentMethod);
 
 ALTER TABLE ADD CONSTRAINT unique_city UNIQUE (city, street, houseNumber);
@@ -172,19 +172,34 @@ ALTER TABLE Ordered_Food ADD CONSTRAINT fk_ordered_food3 FOREIGN KEY (orderId) R
 
 ALTER TABLE Has_Discount ADD CONSTRAINT fk_has_discount1 FOREIGN KEY (email) REFERENCES Clients (email);
 ALTER TABLE Has_Discount ADD CONSTRAINT fk_has_discount2 FOREIGN KEY (code) REFERENCES Discounts (code);
-
+ALTER TABLE Has_Discount MODIFY discountState DEFAULT 0;
 -- Triggers
 
 
 ----IMPORTANT NOTE: WHEN PLACING AN ORDER, WE HAVE TO FIRST INSERT INTO THE ORDERS TABLE, AND THEN INTO ORDERED_FOOD 
 ---OR THIS TRIGGER WILL NOT WORK---
 
+--- Update User Discount Status to Used after insert on Used Discount ---
+CREATE TRIGGER change_discount_status
+AFTER INSERT ON Used_Discount
+DECLARE
+	clientEmail VARCHAR2 (256);
+BEGIN
+	SELECT email INTO clientEmail
+	FROM Used_Discount INNER JOIN Order USING (orderID)
+	WHERE orderID = :new.orderID;
+
+	UPDATE Has_Discount
+	SET discountState = 1
+	WHERE email = clientEmail; 
+END;
+
 --- Ensuring that no orders have customers and restaurants from diff cities ---
 CREATE TRIGGER placing_order
 BEFORE INSERT ON Ordered_Food
 DECLARE 
-	clientCity VARCHAR2(50);
-	restaurantCity VARCHAR2(50); 
+	clientCity VARCHAR2 (50);
+	restaurantCity VARCHAR2 (50); 
 BEGIN
   SELECT city INTO restaurantCity
   FROM Restaurants
@@ -199,7 +214,7 @@ BEGIN
   END IF;
 END;
 
---- Ensuring that an Order can only have one associated Discount.
+--- Ensuring that an Order can only have one associated Discount. ---
 CREATE TRIGGER discount_usage_limit
 BEFORE INSERT ON Used_Discount
 BEGIN
@@ -211,6 +226,10 @@ BEGIN
     THEN Raise_Application_Error (-20420, 'Limit of discounts per order exceeded.')
     END IF;
 END;
+
+-- Ensuring that a Vehicle can only have one associated Courier.
+CREATE TRIGGER vehicle_courier_limit
+BEFORE INSERT ON 
 
 -- Functions and Views
 
