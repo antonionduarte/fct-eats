@@ -11,7 +11,7 @@ CREATE TABLE Ratings (
 CREATE TABLE Has_Discount (
 	email VARCHAR2(256),
 	code VARCHAR2(30),
-	discountUsed BOOLEAN
+	discountUsed NUMBER(1)
 );
 
 -- Ordered_Food table
@@ -172,6 +172,7 @@ ALTER TABLE Ordered_Food ADD CONSTRAINT fk_ordered_food3 FOREIGN KEY (orderId) R
 
 ALTER TABLE Has_Discount ADD CONSTRAINT fk_has_discount1 FOREIGN KEY (email) REFERENCES Clients (email);
 ALTER TABLE Has_Discount ADD CONSTRAINT fk_has_discount2 FOREIGN KEY (code) REFERENCES Discounts (code);
+ALTER TABLE Has_Discount ADD CONSTRAINT discountState_possibilities CHECK (discountState IN (0, 1));
 ALTER TABLE Has_Discount MODIFY discountState DEFAULT 0;
 -- Triggers
 
