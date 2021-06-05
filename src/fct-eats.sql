@@ -195,7 +195,9 @@ BEGIN
   WHERE Order.orderID = :new.orderId;
 
   IF (clientCity <> restaurantCity)
-  ---THROW APPLICATION ERROR HERE---
+
+  THEN Raise_Application_Error (-20069, 'Restaurant unavailable.');
+
   END IF;
 END;
 
@@ -208,8 +210,51 @@ BEGIN
         FROM Used_Discount INNER JOIN Orders USING (orderID)
         WHERE orderID = :new.orderID
         GROUP BY orderID) > 0)
-    THEN Raise_Application_Error (-20420, 'Limit of discounts per order exceeded.')
+    THEN Raise_Application_Error (-20420, 'Limit of discounts per order exceeded.');
     END IF;
+END;
+
+CREATE TRIGGER order_restaurant_limit
+BEFORE INSERT ON Ordered_Food
+DECLARE
+	restaurantNum INTEGER;
+BEGIN
+
+	SELECT COUNT(DISTINCT restaurantName) INTO restaurantNum 
+	FROM Ordered_Food
+	WHERE Ordered_Food.orderId = :new.orderId;
+
+	IF( (restaurantNum > 1) || 
+		( (restaurantNum = 1) &&
+			(SELECT COUNT (DISTINCT restaurantName)
+			FROM Ordered_Food
+			WHERE Ordered_Food.orderId = :new.orderId AND Ordered_Food.restaurantName = :new.restaurantName;)=0 ) )
+
+		THEN Raise_Application_Error (-20690, 'You can only order from one restaurant at a time.');
+
+
+	END IF;
+
+END;
+
+CREATE TRIGGER discount_in_use
+BEFORE INSERT ON Used_Discount
+DECLARE
+	this_client_email VARCHAR2(256);
+	discount_state NUMBER(1);
+BEGIN 
+
+	SELECT clientEmail INTO this_client_email
+	FROM Orders
+	WHERE Orders.orderID = :new.orderId;
+
+	SELECT state INTO discount_state
+	FROM Has_Discount
+	WHERE Has_Discount.email = this_client_email AND Has_Discount.code = :new.code;
+
+	IF(state=1)
+		THEN Raise_Application_Error (-20609, 'This discount has been applied already.');
+	END IF;
 END;
 
 -- Functions and Views
