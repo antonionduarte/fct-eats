@@ -266,7 +266,7 @@ BEGIN
 	FROM Used_Discount
 	WHERE orderID = :new.orderID;
 
-	IF ( order_discounts > 0 )
+	IF (order_discounts > 0)
 
     	THEN Raise_Application_Error (-20420, 'Limit of discounts per order exceeded.');
 
@@ -293,7 +293,7 @@ BEGIN
 	WHERE Ordered_Food.orderId = :new.orderId AND Ordered_Food.restaurantName = :new.restaurantName;
 
 	-- Ensures that if there is already a restaurant in this order, it cannot be different than the new one --
-	IF ( (total_restaurants = 1) AND (same_restaurants = 0) )
+	IF ((total_restaurants = 1) AND (same_restaurants = 0))
 
 		THEN Raise_Application_Error (-20690, 'You can only order from one restaurant at a time.');
 
@@ -319,6 +319,49 @@ BEGIN
 END;
 
 -- Functions and Views
+
+CREATE FUNCTION insert_client (
+	IN client_email VARCHAR2 (256),
+	IN client_phone NUMBER (9, 0),
+	IN client_city VARCHAR2 (50),
+	IN client_street VARCHAR2 (50),
+	IN client_house VARCHAR2 (10),
+	IN client_paymentMethod VARCHAR2 (5))
+RETURN VOID
+DECLARE
+	user_count VARCHAR2 (256);
+BEGIN
+	SELECT COUNT (*) INTO user_count
+	FROM Users WHERE email = client_email;
+
+	IF (user_count = 0)
+		THEN INSERT INTO Users VALUES (client_email, client_phone, client_city, client_street, client_house)
+	END IF;
+
+	INSERT INTO Clients VALUES (client_email, client_paymentMethod);
+END;
+
+CREATE FUNCTION insert_courier (
+	IN courier_email VARCHAR2 (256),
+	IN courier_phone NUMBER (9, 0),
+	IN courier_city VARCHAR2 (50),
+	IN courier_street VARCHAR2 (50),
+	IN courier_house VARCHAR2 (10),
+	IN courier_driverLicense VARCHAR2 (6)
+	IN courier_NIB VARCHAR2 (50))
+RETURN VOID
+DECLARE 
+	user_count VARCHAR2 (256);
+BEGIN 
+	SELECT COUNT (*) INTO user_count
+	FROM Users WHERE email = courier_email;
+
+	IF (user_count = 0)
+		THEN INSERT INTO Users VALUES (courier_email, courier_phone, courier_city, courier_street, courier_house)
+	END IF;
+
+	INSERT INTO Couriers VALUES (courier_email, courier_driverLicense, courier_NIB);
+END;
 
 CREATE OR REPLACE FUNCTION user_city (userEmail VARCHAR2(256))
 RETURN VARCHAR2(50)
