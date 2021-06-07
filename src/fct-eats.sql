@@ -174,64 +174,66 @@ ALTER TABLE Has_Discount MODIFY discountUsed DEFAULT 0;
 ----IMPORTANT NOTE: WHEN PLACING AN ORDER, WE HAVE TO FIRST INSERT INTO THE ORDERS TABLE, AND THEN INTO ORDERED_FOOD 
 ---OR THIS TRIGGER WILL NOT WORK---
 
--- Ensuring that a Courier isn't taking orders outside it's city
-CREATE TRIGGER courier_city_order
-BEFORE INSERT ON Order
+-- Ensuring that a Courier isn't taking orders outside their city
+CREATE OR REPLACE TRIGGER courier_city_order
+BEFORE INSERT ON Orders
 FOR EACH ROW 
 DECLARE
-	restaurantCity VARCHAR2 (50);
-	courierCity VARCHAR2 (50);
+	restaurant_city VARCHAR2 (50);
+	courier_city VARCHAR2 (50);
 BEGIN
 	SELECT city INTO restaurant_city
-	FROM Restaurants INNER JOIN Menus USING (restaurantName)
-									 INNER JOIN Order USING (orderID)
+	FROM Restaurants INNER JOIN Orders USING (restaurantName)
 	WHERE orderID = :new.orderID;
 
 	SELECT city INTO courier_city
-	FROM Courier
-	WHERE courierEmail = :new.courierEmail;
+	FROM Couriers INNER JOIN Users USING (email)
+	WHERE email = :new.courierEmail;
 
-	IF (courierCity <> restaurantCity)
-		THEN Raise_Application_Error (-26900, 'Couriers must deliver in their city.');
+	IF (courier_city <> restaurant_city)
+		THEN Raise_Application_Error (-20001, 'Couriers must deliver in their city.');
 	END IF;
 END;
 
 -- Ensure that a Courier can only do one delivery at a time
-CREATE TRIGGER courier_deliveries
-BEFORE INSERT ON Order 
+CREATE OR REPLACE TRIGGER courier_deliveries
+BEFORE INSERT ON Orders
 FOR EACH ROW 
+DECLARE
+	unfinished_orders INTEGER;
 BEGIN
-	IF EXISTS (
-		SELECT *
+
+		SELECT COUNT(*) INTO unfinished_orders
 		FROM Orders
-		WHERE courierEmail = :new.courierEmail AND status = 'en route';
-	) || EXISTS (
-		SELECT *
-		FROM Orders
-		WHERE courierEmail = :new.courierEmail AND status = 'processing'
-	)
-	THEN Raise_Application_Error (-24200, 'A Courier can only deliver one order at a time.')
+		WHERE courierEmail = :new.courierEmail AND status <> 'received';
+
+	IF (unfinished_orders > 0)
+
+		THEN Raise_Application_Error (-20002, 'A Courier can only deliver one order at a time.');
+
 	END IF;
 END;
 
 --- Update User Discount Status to Used after insert on Used Discount ---
-CREATE TRIGGER change_discount_status
+CREATE OR REPLACE TRIGGER change_discount_status
 AFTER INSERT ON Used_Discount
+FOR EACH ROW
 DECLARE
-	clientEmail VARCHAR2 (256);
+	client_email VARCHAR2 (256);
 BEGIN
-	SELECT email INTO clientEmail
-	FROM Used_Discount INNER JOIN Order USING (orderID)
+	SELECT clientEmail INTO client_email
+	FROM Orders
 	WHERE orderID = :new.orderID;
 
 	UPDATE Has_Discount
-	SET discountState = 1
-	WHERE email = clientEmail AND Has_Discount.code = :new.code; 
+	SET discountUsed = 1
+	WHERE email = client_email AND Has_Discount.code = :new.code; 
 END;
 
 --- Ensuring that no orders have customers and restaurants from diff cities ---
-CREATE TRIGGER placing_order
-BEFORE INSERT ON Ordered_Food
+CREATE OR REPLACE TRIGGER placing_order
+BEFORE INSERT ON Orders
+FOR EACH ROW
 DECLARE 
 	clientCity VARCHAR2 (50);
 	restaurantCity VARCHAR2 (50); 
@@ -241,69 +243,76 @@ BEGIN
   WHERE Restaurants.restaurantName = :new.restaurantName;
 
   SELECT city INTO clientCity
-  FROM Order INNER JOIN Users ON (Order.clientEmail = Users.email)
-  WHERE Order.orderID = :new.orderId;
+  FROM Orders INNER JOIN Users ON (Orders.clientEmail = Users.email)
+  WHERE Orders.orderID = :new.orderId;
 
   IF (clientCity <> restaurantCity)
 
-  THEN Raise_Application_Error (-20069, 'Restaurant unavailable.');
+  	THEN Raise_Application_Error (-20069, 'Restaurant unavailable.');
 
   END IF;
 END;
 
 --- Ensuring that an Order can only have one associated Discount. ---
-CREATE TRIGGER discount_usage_limit
+CREATE OR REPLACE TRIGGER discount_usage_limit
 BEFORE INSERT ON Used_Discount
+FOR EACH ROW
+DECLARE
+	order_discounts INTEGER;
 BEGIN
-    IF
-			((SELECT COUNT (*) 
-			FROM Used_Discount INNER JOIN Orders USING (orderID)
-			WHERE orderID = :new.orderID
-			GROUP BY orderID) > 0)
-    THEN Raise_Application_Error (-20420, 'Limit of discounts per order exceeded.');
+    SELECT COUNT (*) INTO order_discounts 
+	FROM Used_Discount
+	WHERE orderID = :new.orderID;
+
+	IF ( order_discounts > 0 )
+
+    	THEN Raise_Application_Error (-20420, 'Limit of discounts per order exceeded.');
+
     END IF;
 END;
 
---- Ensuring that an Order cannot include Menus from several different restaurants ---
-CREATE TRIGGER order_restaurant_limit
+--- Ensuring that an Order does not include Menus from several different restaurants ---
+CREATE OR REPLACE TRIGGER order_restaurant_limit
 BEFORE INSERT ON Ordered_Food
+FOR EACH ROW
 DECLARE
-	restaurantNum INTEGER;
+	total_restaurants INTEGER;
+	same_restaurants INTEGER;
 BEGIN
 
-	SELECT COUNT(DISTINCT restaurantName) INTO restaurantNum 
+	-- Total of restaurants in this order (will always be 0 or 1) ---
+	SELECT COUNT(DISTINCT restaurantName) INTO total_restaurants
 	FROM Ordered_Food
 	WHERE Ordered_Food.orderId = :new.orderId;
 
-	IF ((restaurantNum > 1) || 
-		((restaurantNum = 1) &&
-			(SELECT COUNT (DISTINCT restaurantName)
-			FROM Ordered_Food
-			WHERE Ordered_Food.orderId = :new.orderId AND Ordered_Food.restaurantName = :new.restaurantName;) = 0 
-		))
+	-- Total of restaurants in this order that are the same as the newly inserted one (0 or 1) --
+	SELECT COUNT (DISTINCT restaurantName) INTO same_restaurants
+	FROM Ordered_Food
+	WHERE Ordered_Food.orderId = :new.orderId AND Ordered_Food.restaurantName = :new.restaurantName;
+
+	-- Ensures that if there is already a restaurant in this order, it cannot be different than the new one --
+	IF ( (total_restaurants = 1) AND (same_restaurants = 0) )
 
 		THEN Raise_Application_Error (-20690, 'You can only order from one restaurant at a time.');
+
 	END IF;
 END;
 
---- Ensures that no discount can be used twice ---
-CREATE TRIGGER discount_in_use
+--- Ensures that no discount is used twice on the same order ---
+CREATE OR REPLACE TRIGGER discount_in_use
 BEFORE INSERT ON Used_Discount
+FOR EACH ROW
 DECLARE
-	this_client_email VARCHAR2(256);
-	discount_state NUMBER(1);
+	discount_in_order INTEGER;
 BEGIN 
 
-	SELECT clientEmail INTO this_client_email
-	FROM Orders
-	WHERE Orders.orderID = :new.orderId;
+	-- Counts the number of times the new discount has been used in the given order --
+	SELECT COUNT (*) INTO discount_in_order
+	FROM Used_Discount
+	WHERE Used_Discount.orderID = :new.orderID AND Used_Discount.code = :new.code;
 
-	SELECT state INTO discount_state
-	FROM Has_Discount
-	WHERE Has_Discount.email = this_client_email AND Has_Discount.code = :new.code;
-
-	IF (state = 1)
-		THEN Raise_Application_Error (-20609, 'This discount has been applied already.');
+	IF (discount_in_order = 1)
+		THEN Raise_Application_Error (-20609, 'This discount has been applied to your order already.');
 	END IF;
 END;
 
@@ -335,6 +344,7 @@ CREATE FUNCTION insert_client (
 CREATE FUNCTION insert_courier
 
 CREATE FUNCTION user_city (userEmail VARCHAR2(256))
+CREATE OR REPLACE FUNCTION user_city (userEmail VARCHAR2(256))
 RETURN VARCHAR2(50)
 IS r VARCHAR2(50);
 BEGIN
@@ -345,7 +355,7 @@ BEGIN
   RETURN r;
 END;
 
-CREATE FUNCTION available_restaurants (clientCity TEXT)
+CREATE OR REPLACE FUNCTION available_restaurants (clientCity TEXT)
 RETURN TABLE
 IS
 r TABLE;
@@ -362,7 +372,7 @@ BEGIN
 
 END;
 
-CREATE VIEW available_restaurants AS 
+CREATE OR REPLACE VIEW available_restaurants AS 
     (SELECT * 
      FROM available_restaurants(user_city("abc@gmail.com")) )
 
