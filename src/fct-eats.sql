@@ -318,11 +318,23 @@ BEGIN
 	END IF;
 END;
 
+-- Sequences
+
+-- Sequence for the order ID's
+CREATE SEQUENCE order_id 
+START WITH 1
+INCREMENT BY 1;
+
+-- Sequence for the restaurant ID's
+CREATE SEQUENCE restaurant_id
+START WITH 1
+INCREMENT BY 1;
+
 -- Functions and Views
 
 CREATE OR REPLACE FUNCTION insert_client (
-    client_firstName in VARCHAR2,
-    client_lastName in VARCHAR2,
+	client_firstName in VARCHAR2,
+	client_lastName in VARCHAR2,
 	client_email IN VARCHAR2,
 	client_phone IN NUMBER,
 	client_city IN VARCHAR2,
@@ -346,8 +358,8 @@ BEGIN
 END;
 
 CREATE OR REPLACE FUNCTION insert_courier (
-    courier_firstName in VARCHAR2,
-    courier_lastName in VARCHAR2,
+	courier_firstName in VARCHAR2,
+	courier_lastName in VARCHAR2,
 	courier_email IN VARCHAR2,
 	courier_phone IN NUMBER,
 	courier_city IN VARCHAR2,
