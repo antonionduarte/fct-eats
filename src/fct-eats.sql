@@ -81,7 +81,7 @@ CREATE TABLE Orders (
 	courierEmail VARCHAR2 (254),
 	tip NUMBER (3,2),
 	status VARCHAR2 (10),
-	restaurantName VARCHAR(30)
+	restaurantName VARCHAR2(30)
 );
 
 -- Vehicles table
