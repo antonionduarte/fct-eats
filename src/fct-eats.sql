@@ -309,6 +309,31 @@ END;
 
 -- Functions and Views
 
+CREATE FUNCTION insert_client (
+	IN client_email VARCHAR2 (256),
+	IN client_phoneNumber NUMBER (9, 0),
+	IN client_city VARCHAR2 (50),
+	IN client_street VARCHAR2 (50),
+	IN client_houseNumber VARCHAR2 (10),
+	IN client_paymentMethod VARCHAR2 (5))
+	RETURN NUMBER
+
+
+	BEGIN
+
+		IF (
+			SELECT 
+		)
+		INSERT INTO Users VALUES (client_email, client_phoneNumber, client_city, client_street, client_houseNumber);
+
+
+	END;
+
+
+)
+
+CREATE FUNCTION insert_courier
+
 CREATE FUNCTION user_city (userEmail VARCHAR2(256))
 RETURN VARCHAR2(50)
 IS r VARCHAR2(50);
