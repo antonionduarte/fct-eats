@@ -329,7 +329,7 @@ CREATE OR REPLACE FUNCTION insert_client (
 	client_street IN VARCHAR2,
 	client_house IN VARCHAR2,
 	client_paymentMethod IN VARCHAR2)
-RETURN VOID
+RETURN NUMBER
 IS
 	user_count VARCHAR2 (256);
 BEGIN
@@ -342,9 +342,10 @@ BEGIN
 	END IF;
 
 	INSERT INTO Clients VALUES (client_email, client_paymentMethod);
+    RETURN 0;
 END;
 
-CREATE FUNCTION insert_courier (
+CREATE OR REPLACE FUNCTION insert_courier (
     courier_firstName in VARCHAR2,
     courier_lastName in VARCHAR2,
 	courier_email IN VARCHAR2,
@@ -354,7 +355,7 @@ CREATE FUNCTION insert_courier (
 	courier_house IN VARCHAR2,
 	courier_driverLicense IN VARCHAR2,
 	courier_NIB IN VARCHAR2)
-RETURN VOID
+RETURN NUMBER
 IS
 	user_count VARCHAR2 (256);
 BEGIN 
@@ -367,11 +368,12 @@ BEGIN
 	END IF;
 
 	INSERT INTO Couriers VALUES (courier_email, courier_driverLicense, courier_NIB);
+    RETURN 0;
 END;
 
 CREATE OR REPLACE FUNCTION user_city (userEmail VARCHAR2)
 RETURN VARCHAR2
-IS r VARCHAR2(50);
+IS r VARCHAR2 (50);
 BEGIN
   SELECT city INTO r
   FROM Users
@@ -396,11 +398,6 @@ BEGIN
   RETURN r;
 
 END;
-
-CREATE OR REPLACE VIEW available_restaurants AS 
-    (SELECT * 
-     FROM available_restaurants(user_city("abc@gmail.com")) )
-
 
 --- The demon that doesn't fucking work ---
 CREATE OR REPLACE VIEW highest_rated_couriers AS 
