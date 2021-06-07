@@ -320,51 +320,57 @@ END;
 
 -- Functions and Views
 
-CREATE FUNCTION insert_client (
-	IN client_email VARCHAR2 (256),
-	IN client_phone NUMBER (9, 0),
-	IN client_city VARCHAR2 (50),
-	IN client_street VARCHAR2 (50),
-	IN client_house VARCHAR2 (10),
-	IN client_paymentMethod VARCHAR2 (5))
+CREATE OR REPLACE FUNCTION insert_client (
+    client_firstName in VARCHAR2,
+    client_lastName in VARCHAR2,
+	client_email IN VARCHAR2,
+	client_phone IN NUMBER,
+	client_city IN VARCHAR2,
+	client_street IN VARCHAR2,
+	client_house IN VARCHAR2,
+	client_paymentMethod IN VARCHAR2)
 RETURN VOID
-DECLARE
+IS
 	user_count VARCHAR2 (256);
 BEGIN
 	SELECT COUNT (*) INTO user_count
 	FROM Users WHERE email = client_email;
 
 	IF (user_count = 0)
-		THEN INSERT INTO Users VALUES (client_email, client_phone, client_city, client_street, client_house)
+		THEN INSERT INTO Users VALUES (client_email, client_phone, client_city, 
+                                       client_street, client_house, client_firstName, client_lastName);
 	END IF;
 
 	INSERT INTO Clients VALUES (client_email, client_paymentMethod);
 END;
 
 CREATE FUNCTION insert_courier (
-	IN courier_email VARCHAR2 (256),
-	IN courier_phone NUMBER (9, 0),
-	IN courier_city VARCHAR2 (50),
-	IN courier_street VARCHAR2 (50),
-	IN courier_house VARCHAR2 (10),
-	IN courier_driverLicense VARCHAR2 (6)
-	IN courier_NIB VARCHAR2 (50))
+    courier_firstName in VARCHAR2,
+    courier_lastName in VARCHAR2,
+	courier_email IN VARCHAR2,
+	courier_phone IN NUMBER,
+	courier_city IN VARCHAR2,
+	courier_street IN VARCHAR2,
+	courier_house IN VARCHAR2,
+	courier_driverLicense IN VARCHAR2,
+	courier_NIB IN VARCHAR2)
 RETURN VOID
-DECLARE 
+IS
 	user_count VARCHAR2 (256);
 BEGIN 
 	SELECT COUNT (*) INTO user_count
 	FROM Users WHERE email = courier_email;
 
 	IF (user_count = 0)
-		THEN INSERT INTO Users VALUES (courier_email, courier_phone, courier_city, courier_street, courier_house)
+		THEN INSERT INTO Users VALUES (courier_email, courier_phone, courier_city, 
+                                       courier_street, courier_house, courier_firstName, courier_lastName);
 	END IF;
 
 	INSERT INTO Couriers VALUES (courier_email, courier_driverLicense, courier_NIB);
 END;
 
-CREATE OR REPLACE FUNCTION user_city (userEmail VARCHAR2(256))
-RETURN VARCHAR2(50)
+CREATE OR REPLACE FUNCTION user_city (userEmail VARCHAR2)
+RETURN VARCHAR2
 IS r VARCHAR2(50);
 BEGIN
   SELECT city INTO r
