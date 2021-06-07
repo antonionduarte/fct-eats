@@ -46,7 +46,9 @@ CREATE TABLE Users (
 	phoneNumber NUMBER (9, 0),
 	city VARCHAR2(50),
 	street VARCHAR2(50),
-	houseNumber VARCHAR2(10)
+	houseNumber VARCHAR2(10),
+	firstName VARCHAR2(30),
+	lastName VARCHAR2(30)
 );
 
 -- Clients table
@@ -110,7 +112,7 @@ ALTER TABLE Address ADD CONSTRAINT pk_address PRIMARY KEY (city, street, houseNu
 
 ALTER TABLE Users ADD CONSTRAINT pk_user PRIMARY KEY (email); 
 ALTER TABLE Users ADD CONSTRAINT fk_address FOREIGN KEY (city, street, houseNumber) REFERENCES Address (city, street, houseNumber);
-ALTER TABLE Users MODIFY (phoneNumber NOT NULL, city NOT NULL, street NOT NULL, houseNumber NOT NULL);
+ALTER TABLE Users MODIFY (phoneNumber NOT NULL, city NOT NULL, street NOT NULL, houseNumber NOT NULL, firstName NOT NULL, lastName NOT NULL);
 ALTER TABLE Users ADD CONSTRAINT unique_phoneNumber UNIQUE (phoneNumber);
 
 ALTER TABLE Couriers ADD CONSTRAINT pk_courier PRIMARY KEY (email);
@@ -392,6 +394,12 @@ END;
 CREATE OR REPLACE VIEW available_restaurants AS 
     (SELECT * 
      FROM available_restaurants(user_city("abc@gmail.com")) )
+
+
+CREATE OR REPLACE VIEW highest_rated_couriers AS 
+	(
+		SELECT
+	)
 
 -- Insertions
 
