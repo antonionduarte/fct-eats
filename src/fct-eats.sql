@@ -174,11 +174,51 @@ ALTER TABLE Has_Discount ADD CONSTRAINT fk_has_discount1 FOREIGN KEY (email) REF
 ALTER TABLE Has_Discount ADD CONSTRAINT fk_has_discount2 FOREIGN KEY (code) REFERENCES Discounts (code);
 ALTER TABLE Has_Discount ADD CONSTRAINT discountState_possibilities CHECK (discountState IN (0, 1));
 ALTER TABLE Has_Discount MODIFY discountState DEFAULT 0;
--- Triggers
 
+-- Triggers
 
 ----IMPORTANT NOTE: WHEN PLACING AN ORDER, WE HAVE TO FIRST INSERT INTO THE ORDERS TABLE, AND THEN INTO ORDERED_FOOD 
 ---OR THIS TRIGGER WILL NOT WORK---
+
+-- Ensuring that a Courier isn't taking orders outside it's city
+CREATE TRIGGER courier_city_order
+BEFORE INSERT ON Order
+FOR EACH ROW 
+DECLARE
+	restaurantCity VARCHAR2 (50);
+	courierCity VARCHAR2 (50);
+BEGIN
+	SELECT city INTO restaurant_city
+	FROM Restaurants INNER JOIN Menus USING (restaurantName)
+									 INNER JOIN Order USING (orderID)
+	WHERE orderID = :new.orderID;
+
+	SELECT city INTO courier_city
+	FROM Courier
+	WHERE courierEmail = :new.courierEmail;
+
+	IF (courierCity <> restaurantCity)
+		THEN Raise_Application_Error (-26900, 'Couriers must deliver in their city.');
+	END IF;
+END;
+
+-- Ensure that a Courier can only do one delivery at a time
+CREATE TRIGGER courier_deliveries
+BEFORE INSERT ON Order 
+FOR EACH ROW 
+BEGIN
+	IF EXISTS (
+		SELECT *
+		FROM Orders
+		WHERE courierEmail = :new.courierEmail AND status = 'en route';
+	) || EXISTS (
+		SELECT *
+		FROM Orders
+		WHERE courierEmail = :new.courierEmail AND status = 'processing'
+	)
+	THEN Raise_Application_Error (-24200, 'A Courier can only deliver one order at a time.')
+	END IF;
+END;
 
 --- Update User Discount Status to Used after insert on Used Discount ---
 CREATE TRIGGER change_discount_status
@@ -222,10 +262,10 @@ CREATE TRIGGER discount_usage_limit
 BEFORE INSERT ON Used_Discount
 BEGIN
     IF
-        ((SELECT COUNT (*) 
-        FROM Used_Discount INNER JOIN Orders USING (orderID)
-        WHERE orderID = :new.orderID
-        GROUP BY orderID) > 0)
+			((SELECT COUNT (*) 
+			FROM Used_Discount INNER JOIN Orders USING (orderID)
+			WHERE orderID = :new.orderID
+			GROUP BY orderID) > 0)
     THEN Raise_Application_Error (-20420, 'Limit of discounts per order exceeded.');
     END IF;
 END;
@@ -241,17 +281,15 @@ BEGIN
 	FROM Ordered_Food
 	WHERE Ordered_Food.orderId = :new.orderId;
 
-	IF( (restaurantNum > 1) || 
-		( (restaurantNum = 1) &&
+	IF ((restaurantNum > 1) || 
+		((restaurantNum = 1) &&
 			(SELECT COUNT (DISTINCT restaurantName)
 			FROM Ordered_Food
-			WHERE Ordered_Food.orderId = :new.orderId AND Ordered_Food.restaurantName = :new.restaurantName;)=0 ) )
+			WHERE Ordered_Food.orderId = :new.orderId AND Ordered_Food.restaurantName = :new.restaurantName;) = 0 
+		))
 
 		THEN Raise_Application_Error (-20690, 'You can only order from one restaurant at a time.');
-
-
 	END IF;
-
 END;
 
 --- Ensures that no discount can be used twice ---
@@ -270,14 +308,10 @@ BEGIN
 	FROM Has_Discount
 	WHERE Has_Discount.email = this_client_email AND Has_Discount.code = :new.code;
 
-	IF(state=1)
+	IF (state = 1)
 		THEN Raise_Application_Error (-20609, 'This discount has been applied already.');
 	END IF;
 END;
-
--- Ensuring that a Vehicle can only have one associated Courier.
-CREATE TRIGGER vehicle_courier_limit
-BEFORE INSERT ON 
 
 -- Functions and Views
 
@@ -300,11 +334,9 @@ BEGIN
   FOR restaurant IN (SELECT * FROM Restaurants)
 
   LOOP
-
-  IF (restaurant.city = clientCity)
-	INSERT INTO r VALUES restaurant; ---unsure if this works---
-  END IF;
-
+		IF (restaurant.city = clientCity)
+		INSERT INTO r VALUES restaurant; ---unsure if this works---
+		END IF;
   END LOOP;
 
   RETURN r;
