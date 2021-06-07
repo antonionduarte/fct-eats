@@ -172,7 +172,45 @@ ALTER TABLE Has_Discount ADD CONSTRAINT fk_has_discount2 FOREIGN KEY (code) REFE
 ALTER TABLE Has_Discount ADD CONSTRAINT discountState_possibilities CHECK (discountUsed IN (0, 1));
 ALTER TABLE Has_Discount MODIFY discountUsed DEFAULT 0;
 
+-- Sequences
+
+-- Sequence for the order ID's
+CREATE SEQUENCE seq_order_id 
+START WITH 1
+INCREMENT BY 1;
+
+-- Sequence for the restaurant ID's
+CREATE SEQUENCE seq_restaurant_id
+START WITH 1
+INCREMENT BY 1;
+
 -- Triggers
+
+-- Automatically insert new order id from seq.
+CREATE OR REPLACE TRIGGER insert_order_id
+BEFORE INSERT ON Orders
+FOR EACH ROW
+DECLARE
+	new_order_id NUMBER (20);
+BEGIN
+	SELECT seq_order_id.nextval 
+		INTO new_order_id
+		FROM dual;
+	:new.orderID := new_order_id;
+END;
+
+-- Automatically insert new restaurant id from seq.
+CREATE OR REPLACE TRIGGER insert_restaurant_id
+BEFORE INSERT ON Restaurants
+FOR EACH ROW
+DECLARE
+	new_restaurant_id NUMBER (20);
+BEGIN
+	SELECT seq_restaurant_id.nextval
+		INTO new_restaurant_id
+		FROM dual;
+	:new.restaurantID := new_restaurant_id;
+END;
 
 -- Ensuring that a Courier isn't taking orders outside their city
 CREATE OR REPLACE TRIGGER courier_city_order
@@ -315,18 +353,6 @@ BEGIN
 		THEN Raise_Application_Error (-20609, 'This discount has been applied to your order already.');
 	END IF;
 END;
-
--- Sequences
-
--- Sequence for the order ID's
-CREATE SEQUENCE order_id 
-START WITH 1
-INCREMENT BY 1;
-
--- Sequence for the restaurant ID's
-CREATE SEQUENCE restaurant_id
-START WITH 1
-INCREMENT BY 1;
 
 -- Functions and Views
 
