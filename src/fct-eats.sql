@@ -17,14 +17,14 @@ CREATE TABLE Has_Discount (
 -- Ordered_Food table
 CREATE TABLE Ordered_Food (
 	menuName VARCHAR2(50),
-	restaurantName VARCHAR2(50),
+	restaurantID VARCHAR2(20),
 	orderId NUMBER(20)
 );
 
 -- Has_Categories table
 CREATE TABLE Has_Categories (
 	categoryName VARCHAR2(50),
-	restaurantName VARCHAR2(50)
+	restaurantID VARCHAR2(20)
 );
 
 -- Used_Discount table
@@ -72,7 +72,7 @@ CREATE TABLE Categories (
 -- Menus table
 CREATE TABLE Menus ( 
 	menuName VARCHAR2(30),
-	restaurantName VARCHAR(30),
+	restaurantID VARCHAR(20),
 	price NUMBER(3,2) 
 );
 
@@ -83,7 +83,7 @@ CREATE TABLE Orders (
 	courierEmail VARCHAR2 (254),
 	tip NUMBER (3,2),
 	status VARCHAR2 (10),
-	restaurantName VARCHAR2(30)
+	restaurantID VARCHAR2(20)
 );
 
 -- Vehicles table
@@ -96,6 +96,7 @@ CREATE TABLE Vehicles (
 -- Restaurants table
 CREATE TABLE Restaurants ( 
 	restaurantName VARCHAR2(50),
+    restaurantID VARCHAR2(20),
 	deliveryFee NUMBER (2,2),
 	city VARCHAR2(50),
 	street VARCHAR2(50),
@@ -128,10 +129,10 @@ ALTER TABLE Orders ADD CONSTRAINT pk_order PRIMARY KEY (orderID);
 ALTER TABLE Orders ADD CONSTRAINT valid_orderID CHECK (orderID >= 0);
 ALTER TABLE Orders ADD CONSTRAINT fk_order1 FOREIGN KEY (clientEmail) REFERENCES Clients (email);
 ALTER TABLE Orders ADD CONSTRAINT fk_order2 FOREIGN KEY (courierEmail) REFERENCES Couriers (email);
-ALTER TABLE Orders ADD CONSTRAINT fk_order3 FOREIGN KEY (restaurantName) REFERENCES Restaurants (restaurantName);
+ALTER TABLE Orders ADD CONSTRAINT fk_order3 FOREIGN KEY (restaurantID) REFERENCES Restaurants (restaurantID);
 ALTER TABLE Orders ADD CONSTRAINT valid_tip CHECK (tip >= 0);
 ALTER TABLE Orders ADD CONSTRAINT valid_status CHECK (status IN ('received', 'processing', 'en route'));
-ALTER TABLE Orders MODIFY (clientEmail NOT NULL, courierEmail NOT NULL, tip NOT NULL, status NOT NULL);
+ALTER TABLE Orders MODIFY (clientEmail NOT NULL, courierEmail NOT NULL, tip NOT NULL, status NOT NULL, restaurantID NOT NULL);
 
 ALTER TABLE Discounts ADD CONSTRAINT pk_discounts PRIMARY KEY (code);
 ALTER TABLE Discounts MODIFY (percentage NOT NULL);
@@ -141,17 +142,17 @@ ALTER TABLE Ratings ADD CONSTRAINT valid_stars CHECK (stars BETWEEN 1 AND 5);
 ALTER TABLE Ratings ADD CONSTRAINT pk_ratings PRIMARY KEY (compliment);
 ALTER TABLE Ratings ADD CONSTRAINT fk_ratings FOREIGN KEY (orderId) REFERENCES Orders (orderId);
 
-ALTER TABLE Restaurants ADD CONSTRAINT pk_restaurant PRIMARY KEY (restaurantName);
+ALTER TABLE Restaurants ADD CONSTRAINT pk_restaurant PRIMARY KEY (restaurantID);
 ALTER TABLE Restaurants ADD CONSTRAINT fk_restaurant FOREIGN KEY (city, street, houseNumber) REFERENCES Address (city, street, houseNumber);
-ALTER TABLE Restaurants MODIFY (deliveryFee NOT NULL, city NOT NULL, street NOT NULL, houseNumber NOT NULL);
+ALTER TABLE Restaurants MODIFY (restaurantName NOT NULL, deliveryFee NOT NULL, city NOT NULL, street NOT NULL, houseNumber NOT NULL);
 ALTER TABLE Restaurants ADD CONSTRAINT valid_deliveryFee CHECK (deliveryFee >= 0);
 
 ALTER TABLE Vehicles ADD CONSTRAINT pk_vehicles PRIMARY KEY (regNumber);
 ALTER TABLE Vehicles ADD CONSTRAINT fk_vehicles FOREIGN KEY (courierEmail) REFERENCES Couriers (email);
 ALTER TABLE Vehicles MODIFY (vehicleType NOT NULL, courierEmail NOT NULL);
 
-ALTER TABLE Menus ADD CONSTRAINT pk_menus PRIMARY KEY (menuName, restaurantName);
-ALTER TABLE Menus ADD CONSTRAINT fk_menus FOREIGN KEY (restaurantName) REFERENCES Restaurants (restaurantName);
+ALTER TABLE Menus ADD CONSTRAINT pk_menus PRIMARY KEY (menuName, restaurantID);
+ALTER TABLE Menus ADD CONSTRAINT fk_menus FOREIGN KEY (restaurantID) REFERENCES Restaurants (restaurantID);
 ALTER TABLE Menus MODIFY (price NOT NULL);
 ALTER TABLE Menus ADD CONSTRAINT positive_price CHECK (price >= 0);
 
@@ -161,9 +162,9 @@ ALTER TABLE Used_Discount ADD CONSTRAINT fk_code FOREIGN KEY (code) REFERENCES D
 ALTER TABLE Used_Discount ADD CONSTRAINT fk_orderId FOREIGN KEY (orderId) REFERENCES Orders (orderId);
 
 ALTER TABLE Has_Categories ADD CONSTRAINT fk_categoryName FOREIGN KEY (categoryName) REFERENCES Categories (categoryName);
-ALTER TABLE Has_Categories ADD CONSTRAINT fk_restaurantName FOREIGN KEY (restaurantName) REFERENCES Restaurants (restaurantName);
+ALTER TABLE Has_Categories ADD CONSTRAINT fk_restaurantID FOREIGN KEY (restaurantID) REFERENCES Restaurants (restaurantID);
 
-ALTER TABLE Ordered_Food ADD CONSTRAINT fk_ordered_food1 FOREIGN KEY (menuName, restaurantName) REFERENCES Menus (menuName, restaurantName);
+ALTER TABLE Ordered_Food ADD CONSTRAINT fk_ordered_food1 FOREIGN KEY (menuName, restaurantID) REFERENCES Menus (menuName, restaurantID);
 ALTER TABLE Ordered_Food ADD CONSTRAINT fk_ordered_food2 FOREIGN KEY (orderId) REFERENCES Orders (orderId);
 
 ALTER TABLE Has_Discount ADD CONSTRAINT fk_has_discount1 FOREIGN KEY (email) REFERENCES Clients (email);
@@ -172,9 +173,6 @@ ALTER TABLE Has_Discount ADD CONSTRAINT discountState_possibilities CHECK (disco
 ALTER TABLE Has_Discount MODIFY discountUsed DEFAULT 0;
 
 -- Triggers
-
-----IMPORTANT NOTE: WHEN PLACING AN ORDER, WE HAVE TO FIRST INSERT INTO THE ORDERS TABLE, AND THEN INTO ORDERED_FOOD 
----OR THIS TRIGGER WILL NOT WORK---
 
 -- Ensuring that a Courier isn't taking orders outside their city
 CREATE OR REPLACE TRIGGER courier_city_order
@@ -185,7 +183,7 @@ DECLARE
 	courier_city VARCHAR2 (50);
 BEGIN
 	SELECT city INTO restaurant_city
-	FROM Restaurants INNER JOIN Orders USING (restaurantName)
+	FROM Restaurants INNER JOIN Orders USING (restaurantID)
 	WHERE orderID = :new.orderID;
 
 	SELECT city INTO courier_city
@@ -242,7 +240,7 @@ DECLARE
 BEGIN
   SELECT city INTO restaurantCity
   FROM Restaurants
-  WHERE Restaurants.restaurantName = :new.restaurantName;
+  WHERE Restaurants.restaurantID = :new.restaurantID;
 
   SELECT city INTO clientCity
   FROM Orders INNER JOIN Users ON (Orders.clientEmail = Users.email)
@@ -283,14 +281,14 @@ DECLARE
 BEGIN
 
 	-- Total of restaurants in this order (will always be 0 or 1) ---
-	SELECT COUNT(DISTINCT restaurantName) INTO total_restaurants
+	SELECT COUNT(DISTINCT restaurantID) INTO total_restaurants
 	FROM Ordered_Food
 	WHERE Ordered_Food.orderId = :new.orderId;
 
 	-- Total of restaurants in this order that are the same as the newly inserted one (0 or 1) --
-	SELECT COUNT (DISTINCT restaurantName) INTO same_restaurants
+	SELECT COUNT (DISTINCT restaurantID) INTO same_restaurants
 	FROM Ordered_Food
-	WHERE Ordered_Food.orderId = :new.orderId AND Ordered_Food.restaurantName = :new.restaurantName;
+	WHERE Ordered_Food.orderId = :new.orderId AND Ordered_Food.restaurantID = :new.restaurantID;
 
 	-- Ensures that if there is already a restaurant in this order, it cannot be different than the new one --
 	IF ((total_restaurants = 1) AND (same_restaurants = 0))
@@ -399,20 +397,14 @@ BEGIN
 
 END;
 
---- The demon that doesn't fucking work ---
 CREATE OR REPLACE VIEW highest_rated_couriers AS 
-		SELECT firstName, lastName, AVG(Ratings.stars) AS avg_rating
-		FROM Couriers INNER JOIN Users USING(email) -- gets us the courier names --
-						INNER JOIN Orders ON(Couriers.email = Orders.courierEmail) -- gets us the orders of each courier --
+		SELECT Couriers.email, firstName, lastName, AVG(stars) AS avg_rating
+		FROM Couriers INNER JOIN Orders ON(Couriers.email = Orders.courierEmail) -- gets us the orders of each courier --
 						INNER JOIN Ratings USING(orderID) -- gets us the rating of each order --
-		WHERE Orders.status = 'received'
-		GROUP BY Couriers.email
-		ORDER BY avg_rating;
+                        INNER JOIN Users ON(Couriers.email = Users.email) -- gets us the courier's name --
+		WHERE Orders.status = 'received' AND ROWNUM <= 10
+		GROUP BY Couriers.email, firstName, lastName
+		ORDER BY AVG(stars);
 
 -- Insertions
 
-INSERT INTO Users VALUES ("aaa@gmail.com", 911111111, "Lisboa", "Rua aaa", "A-01");
-INSERT INTO Users VALUES ("aaa@gmail.com", 911111111, "Lisboa", "Rua aaa", "A-01");
-INSERT INTO Users VALUES ("aaa@gmail.com", 911111111, "Lisboa", "Rua aaa", "A-01");
-INSERT INTO Users VALUES ("aaa@gmail.com", 911111111, "Lisboa", "Rua aaa", "A-01");
-INSERT INTO Users VALUES ("aaa@gmail.com", 911111111, "Lisboa", "Rua aaa", "A-01");
