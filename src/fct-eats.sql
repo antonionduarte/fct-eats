@@ -353,10 +353,15 @@ CREATE OR REPLACE VIEW available_restaurants AS
      FROM available_restaurants(user_city("abc@gmail.com")) )
 
 
+--- The demon that doesn't fucking work ---
 CREATE OR REPLACE VIEW highest_rated_couriers AS 
-	(
-		SELECT
-	)
+		SELECT firstName, lastName, AVG(Ratings.stars) AS avg_rating
+		FROM Couriers INNER JOIN Users USING(email) -- gets us the courier names --
+						INNER JOIN Orders ON(Couriers.email = Orders.courierEmail) -- gets us the orders of each courier --
+						INNER JOIN Ratings USING(orderID) -- gets us the rating of each order --
+		WHERE Orders.status = 'received'
+		GROUP BY Couriers.email
+		ORDER BY avg_rating;
 
 -- Insertions
 
