@@ -381,34 +381,6 @@ BEGIN
     RETURN 0;
 END;
 
-CREATE OR REPLACE FUNCTION user_city (userEmail VARCHAR2)
-RETURN VARCHAR2
-IS r VARCHAR2 (50);
-BEGIN
-  SELECT city INTO r
-  FROM Users
-  WHERE Users.email = userEmail;
-
-  RETURN r;
-END;
-
-CREATE OR REPLACE FUNCTION available_restaurants (clientCity TEXT)
-RETURN TABLE
-IS
-r TABLE;
-BEGIN
-  FOR restaurant IN (SELECT * FROM Restaurants)
-
-  LOOP
-		IF (restaurant.city = clientCity)
-		INSERT INTO r VALUES restaurant; ---unsure if this works---
-		END IF;
-  END LOOP;
-
-  RETURN r;
-
-END;
-
 CREATE OR REPLACE VIEW highest_rated_couriers AS 
 		SELECT Couriers.email, firstName, lastName, AVG(stars) AS avg_rating
 		FROM Couriers INNER JOIN Orders ON(Couriers.email = Orders.courierEmail) -- gets us the orders of each courier --
