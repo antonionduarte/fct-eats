@@ -106,59 +106,51 @@ CREATE TABLE Discounts (
 );
 
 ALTER TABLE Discounts ADD CONSTRAINT pk_discounts PRIMARY KEY (code);
-ALTER TABLE Discounts ADD CONSTRAINT null_discounts NOT NULL (percentage);
-ALTER TABLE Discounts ADD CONSTRAINT positive_percentage CHECK (percentage >= 0); 
+ALTER TABLE Discounts ADD CONSTRAINT null_discount NOT NULL (percentage);
+ALTER TABLE Discounts ADD CONSTRAINT valid_percentage CHECK (percentage >= 0); 
 
 ALTER TABLE Ratings ADD CONSTRAINT valid_stars CHECK (stars BETWEEN 1 AND 5);
 ALTER TABLE Ratings ADD CONSTRAINT pk_ratings PRIMARY KEY (compliment);
 ALTER TABLE Ratings ADD CONSTRAINT fk_ratings FOREIGN KEY (orderId) REFERENCES Orders (orderId);
 
 ALTER TABLE Restaurants ADD CONSTRAINT pk_restaurant PRIMARY KEY (restaurantName);
-ALTER TABLE Restaurants ADD CONSTRAINT unique_restaurantName UNIQUE (restaurantName);
 ALTER TABLE Restaurants ADD CONSTRAINT fk_restaurant FOREIGN KEY (city, street, houseNumber) REFERENCES Address (city, street, houseNumber);
 ALTER TABLE Restaurants ADD CONSTRAINT null_restaurant NOT NULL (deliveryFee, city, street, houseNumber);
-ALTER TABLE Restaurants ADD CONSTRAINT positive_deliveryFee CHECK (deliveryFee >= 0);
+ALTER TABLE Restaurants ADD CONSTRAINT valid_deliveryFee CHECK (deliveryFee >= 0);
 
 ALTER TABLE Vehicles ADD CONSTRAINT pk_vehicles PRIMARY KEY (regNumber);
-ALTER TABLE Vehicles ADD CONSTRAINT fk_vehicles FOREIGN KEY (courierEmail) REFERENCES Couriers (courierEmail);
-ALTER TABLE Vehicles ADD CONSTRAINT null_vehicles NOT NULL (vehicleType, courierEmail);
+ALTER TABLE Vehicles ADD CONSTRAINT fk_vehicles FOREIGN KEY (email) REFERENCES Couriers (email);
+ALTER TABLE Vehicles ADD CONSTRAINT null_vehicles NOT NULL (vehicleType, email);
 
 ALTER TABLE Orders ADD CONSTRAINT pk_order PRIMARY KEY (orderID);
-ALTER TABLE Orders ADD CONSTRAINT unique_orderID UNIQUE (orderID);
-ALTER TABLE Orders ADD CONSTRAINT positive_orderID CHECK (orderID >= 0);
-ALTER TABLE Orders ADD CONSTRAINT fk_order1 FOREIGN KEY (clientEmail) REFERENCES Clients (clientEmail);
-ALTER TABLE Orders ADD CONSTRAINT fk_order2 FOREIGN KEY (courierEmail) REFERENCES Couriers (courierEmail);
-ALTER TABLE Orders ADD CONSTRAINT positive_tip CHECK (tip >= 0);
+ALTER TABLE Orders ADD CONSTRAINT valid_orderID CHECK (orderID >= 0);
+ALTER TABLE Orders ADD CONSTRAINT fk_order1 FOREIGN KEY (clientEmail) REFERENCES Clients (email);
+ALTER TABLE Orders ADD CONSTRAINT fk_order2 FOREIGN KEY (courierEmail) REFERENCES Couriers (email);
+ALTER TABLE Orders ADD CONSTRAINT valid_tip CHECK (tip >= 0);
 ALTER TABLE Orders ADD CONSTRAINT valid_status CHECK (status IN ("received", "processing", "en route"));
 ALTER TABLE Orders ADD CONSTRAINT null_order NOT NULL (clientEmail, courierEmail, tip, status);
 
 ALTER TABLE Menus ADD CONSTRAINT pk_menus PRIMARY KEY (menuName, restaurantName);
-ALTER TABLE Menus ADD CONSTRAINT unique_menus UNIQUE (menuName);
 ALTER TABLE Menus ADD CONSTRAINT fk_menus FOREIGN KEY (restaurantName) REFERENCES Restaurants (restaurantName);
-ALTER TABLE Menus ADD CONSTRAINT null_menus NOT NULL (restaurantName, price);
+ALTER TABLE Menus ADD CONSTRAINT null_price NOT NULL (price);
 ALTER TABLE Menus ADD CONSTRAINT positive_price CHECK (price >= 0);
 
 ALTER TABLE Categories ADD CONSTRAINT pk_category PRIMARY KEY (categoryName);
-ALTER TABLE Categories ADD CONSTRAINT null_category NOT NULL (categoryName); 
 
-ALTER TABLE Couriers ADD CONSTRAINT unique_email UNIQUE (email);
 ALTER TABLE Couriers ADD CONSTRAINT pk_courier PRIMARY KEY (email);
 ALTER TABLE Couriers ADD CONSTRAINT fk_courier FOREIGN KEY (email) REFERENCES Users (email);
-ALTER TABLE Couriers ADD CONSTRAINT null_courier NOT NULL (email, driverLicense, NIB);
+ALTER TABLE Couriers ADD CONSTRAINT not_null_and_unique NOT NULL UNIQUE (driverLicense, NIB);
 
-ALTER TABLE Clients ADD CONSTRAINT unique_email UNIQUE (email);
 ALTER TABLE Clients ADD CONSTRAINT pk_client PRIMARY KEY (email);
 ALTER TABLE Clients ADD CONSTRAINT fk_client FOREIGN KEY (email) REFERENCES Users (email); 
 ALTER TABLE Clients ADD CONSTRAINT valid_payment CHECK (paymentMethod IN ("card", "cash"));
-ALTER TABLE Clients ADD CONSTRAINT null_client NOT NULL (email, paymentMethod);
 
-ALTER TABLE ADD CONSTRAINT unique_city UNIQUE (city, street, houseNumber);
 ALTER TABLE Users ADD CONSTRAINT pk_user PRIMARY KEY (email); 
-ALTER TABLE Users ADD CONSTRAINT fk_city FOREIGN KEY (city, street, houseNumber) REFERENCES Address (city, street, houseNumber);
-ALTER TABLE Users ADD CONSTRAINT null_user NOT NULL (email, phoneNumber, city, street, houseNumber);
+ALTER TABLE Users ADD CONSTRAINT fk_address FOREIGN KEY (city, street, houseNumber) REFERENCES Address (city, street, houseNumber);
+ALTER TABLE Users ADD CONSTRAINT null_user NOT NULL (phoneNumber, city, street, houseNumber);
+ALTER TABLE Users ADD CONSTRAINT unique_phoneNumber UNIQUE (phoneNumber);
 
 ALTER TABLE Address ADD CONSTRAINT pk_address PRIMARY KEY (city, street, houseNumber);
-ALTER TABLE Address ADD CONSTRAINT null_address NOT NULL (city, street, houseNumber);
 
 ALTER TABLE Used_Discount ADD CONSTRAINT fk_code FOREIGN KEY (code) REFERENCES Discounts (code);
 ALTER TABLE Used_Discount ADD CONSTRAINT fk_orderId FOREIGN KEY (orderId) REFERENCES Orders (orderId);
