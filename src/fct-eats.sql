@@ -496,8 +496,8 @@ ORDER BY firstName;
 -- Insertions
 
 -- Pre-defined Categories
-INSERT INTO Categories VALUES ('Pizzeria');
-INSERT INTO Categories VALUES ('Hamburgueria');
+INSERT INTO Categories VALUES ('Pizza');
+INSERT INTO Categories VALUES ('Hamburguer');
 INSERT INTO Categories VALUES ('Sushi');
 INSERT INTO Categories VALUES ('Asian');
 INSERT INTO Categories VALUES ('Chinese');
