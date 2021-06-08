@@ -471,13 +471,23 @@ END;
 
 -- View the 10 couriers with the highest ratings
 CREATE OR REPLACE VIEW highest_rated_couriers AS 
-		SELECT Couriers.email, firstName, lastName, AVG(stars) AS avg_rating
-		FROM Couriers INNER JOIN Orders ON(Couriers.email = Orders.courierEmail) -- gets us the orders of each courier --
-						INNER JOIN Ratings USING(orderID) -- gets us the rating of each order --
-                        INNER JOIN Users ON(Couriers.email = Users.email) -- gets us the courier's name --
-		WHERE Orders.status = 'received' AND ROWNUM <= 10
-		GROUP BY Couriers.email, firstName, lastName
-		ORDER BY AVG(stars);
+	SELECT Couriers.email, firstName, lastName, AVG(stars) AS avg_rating
+	FROM Couriers INNER JOIN Orders ON(Couriers.email = Orders.courierEmail) -- gets us the orders of each courier --
+					INNER JOIN Ratings USING(orderID) -- gets us the rating of each order --
+											INNER JOIN Users ON(Couriers.email = Users.email) -- gets us the courier's name --
+	WHERE Orders.status = 'received' AND ROWNUM <= 10
+	GROUP BY Couriers.email, firstName, lastName
+	ORDER BY AVG(stars);
+
+-- View used for client report
+CREATE OR REPLACE VIEW client_information AS
+	SELECT *
+	FROM Clients INNER JOIN Users USING (email);
+
+-- View used for courier report
+CREATE OR REPLACE VIEW courier_information AS
+	SELECT *
+	FROM Couriers INNER JOIN Users USING (email);
 
 -- Insertions
 
