@@ -101,7 +101,8 @@ CREATE TABLE Orders (
 	courierEmail VARCHAR2 (254),
 	tip NUMBER (3,2),
 	status VARCHAR2 (10),
-	restaurantID NUMBER(20)
+	restaurantID NUMBER(20),
+	orderDate DATE
 );
 
 -- Vehicles table
@@ -248,15 +249,12 @@ FOR EACH ROW
 DECLARE
 	unfinished_orders INTEGER;
 BEGIN
-
-		SELECT COUNT(*) INTO unfinished_orders
-		FROM Orders
-		WHERE courierEmail = :new.courierEmail AND status <> 'received';
+	SELECT COUNT(*) INTO unfinished_orders
+	FROM Orders
+	WHERE courierEmail = :new.courierEmail AND status <> 'received';
 
 	IF (unfinished_orders > 0)
-
 		THEN Raise_Application_Error (-20002, 'A Courier can only deliver one order at a time.');
-
 	END IF;
 END;
 /
@@ -453,8 +451,8 @@ BEGIN
 	WHERE email = client_email;
 
 	IF (user_count = 0) THEN
-		INSERT INTO Users VALUES (client_email, client_phone, client_city, 
-                                client_street, client_house, client_firstName, client_lastName);
+		INSERT INTO Users VALUES (client_firstName, client_lastName, client_email, client_phone, client_city, 
+                                client_street, client_house);
 	END IF;
 
 	INSERT INTO Clients VALUES (client_email, client_paymentMethod);
@@ -479,8 +477,8 @@ BEGIN
 	WHERE email = courier_email;
 
 	IF (user_count = 0) THEN
-		INSERT INTO Users VALUES (courier_email, courier_phone, courier_city, 
-                                courier_street, courier_house, courier_firstName, courier_lastName);
+		INSERT INTO Users VALUES (courier_lastName, courier_firstName, courier_email, courier_phone, courier_city, 
+                                courier_street, courier_house);
 	END IF;
 
 	INSERT INTO Couriers VALUES (courier_email, courier_driverLicense, courier_NIB);
@@ -498,7 +496,7 @@ CREATE OR REPLACE PROCEDURE insert_order (
 	discount_code IN VARCHAR2
 ) AS
 BEGIN
-	INSERT INTO Orders VALUES (order_id, client_email, courier_email, tip, status, restaurant_id);
+	INSERT INTO Orders VALUES (order_id, client_email, courier_email, tip, status, restaurant_id, SYSDATE);
 
 	IF discount_code IS NOT NULL
 		THEN INSERT INTO Used_Discount VALUES (discount_code, order_id);
@@ -529,6 +527,16 @@ CREATE OR REPLACE VIEW courier_information AS
 SELECT *
 FROM Couriers INNER JOIN Users USING (email)
 ORDER BY firstName;
+
+-- View for Orders
+CREATE OR REPLACE VIEW view_orders AS
+SELECT *
+FROM Orders LEFT OUTER JOIN Used_Discount USING (orderID);
+
+-- View for Add Menu
+CREATE OR REPLACE VIEW add_menu_available AS
+SELECT * 
+FROM Menus;
 
 -- Insertions
 
