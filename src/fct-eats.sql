@@ -106,7 +106,7 @@ CREATE TABLE Restaurants (
 -- Discounts table
 CREATE TABLE Discounts ( 
 	code VARCHAR2(30),
-	percentage NUMBER (3,2) 
+	percentage NUMBER (3) 
 );
 
 ALTER TABLE Address ADD CONSTRAINT pk_address PRIMARY KEY (city, street, houseNumber);
@@ -137,7 +137,7 @@ ALTER TABLE Orders MODIFY (clientEmail NOT NULL, courierEmail NOT NULL, tip NOT 
 
 ALTER TABLE Discounts ADD CONSTRAINT pk_discounts PRIMARY KEY (code);
 ALTER TABLE Discounts MODIFY (percentage NOT NULL);
-ALTER TABLE Discounts ADD CONSTRAINT valid_percentage CHECK (percentage >= 0); 
+ALTER TABLE Discounts ADD CONSTRAINT valid_percentage CHECK (percentage BETWEEN 0 AND 100); 
 
 ALTER TABLE Ratings ADD CONSTRAINT valid_stars CHECK (stars BETWEEN 1 AND 5);
 ALTER TABLE Ratings ADD CONSTRAINT pk_ratings PRIMARY KEY (compliment);
