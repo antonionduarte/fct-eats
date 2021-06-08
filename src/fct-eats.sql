@@ -207,17 +207,17 @@ INCREMENT BY 1;
 -- Triggers
 
 -- Automatically insert new order id from seq.
-CREATE OR REPLACE TRIGGER insert_order_id
-BEFORE INSERT ON Orders
-FOR EACH ROW
-DECLARE
-	new_order_id NUMBER (20);
-BEGIN
-	SELECT seq_order_id.nextval INTO new_order_id 
-		FROM dual;
-	:new.orderID := new_order_id;
-END;
-/
+--CREATE OR REPLACE TRIGGER insert_order_id
+--BEFORE INSERT ON Orders
+--FOR EACH ROW
+--DECLARE
+--	new_order_id NUMBER (20);
+-- BEGIN
+--	SELECT seq_order_id.nextval INTO new_order_id 
+--		FROM dual;
+--	:new.orderID := new_order_id;
+--END;
+--/
 
 -- Ensuring that a Courier isn't taking orders outside their city
 CREATE OR REPLACE TRIGGER courier_city_order
@@ -484,6 +484,25 @@ BEGIN
 	END IF;
 
 	INSERT INTO Couriers VALUES (courier_email, courier_driverLicense, courier_NIB);
+END;
+/
+
+-- Procedure to add Orders
+CREATE OR REPLACE PROCEDURE insert_order (
+	order_id IN NUMBER,
+	client_email IN VARCHAR2,
+	courier_email IN VARCHAR2,
+	tip IN NUMBER,
+	status IN VARCHAR2,
+	restaurant_id IN NUMBER,
+	discount_code IN VARCHAR2
+) AS
+BEGIN
+	INSERT INTO Orders VALUES (order_id, client_email, courier_email, tip, status, restaurant_id);
+
+	IF discount_code IS NOT NULL
+		THEN INSERT INTO Used_Discount VALUES (discount_code, order_id);
+	END IF;
 END;
 /
 
