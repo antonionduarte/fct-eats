@@ -354,9 +354,40 @@ BEGIN
 	END IF;
 END;
 
+-- Add address before insert on User
+CREATE OR REPLACE TRIGGER add_address_user
+BEFORE INSERT ON Users
+FOR EACH ROW 
+DECLARE number_equal_addresses NUMBER;
+BEGIN
+	SELECT COUNT (*) INTO number_equal_addresses
+		FROM Address
+		WHERE city = :new.city AND street = :new.street AND houseNumber = :new.houseNumber;
+
+	IF (number_equal_addresses = 0)
+		THEN INSERT INTO Address VALUES (:new.city, :new.street, :new.houseNumber);
+	END IF;
+END;
+
+-- Add address before insert on Restaurant
+CREATE OR REPLACE TRIGGER add_address_restaurant
+BEFORE INSERT ON Restaurants
+FOR EACH ROW
+DECLARE number_equal_addresses NUMBER;
+BEGIN
+	SELECT COUNT (*) INTO number_equal_addresses
+		FROM Address
+		WHERE city = :new.city AND street = :new.street AND houseNumber = :new.houseNumber;
+
+	IF (number_equal_addresses = 0)
+		THEN INSERT INTO Address VALUES (:new.city, :new.street, :new.houseNumber);
+	END IF;
+END;
+
 -- Functions and Views
 
-CREATE OR REPLACE FUNCTION insert_client (
+-- Function used to insert clients
+CREATE OR REPLACE PROCEDURE insert_client (
 	client_firstName in VARCHAR2,
 	client_lastName in VARCHAR2,
 	client_email IN VARCHAR2,
@@ -364,9 +395,7 @@ CREATE OR REPLACE FUNCTION insert_client (
 	client_city IN VARCHAR2,
 	client_street IN VARCHAR2,
 	client_house IN VARCHAR2,
-	client_paymentMethod IN VARCHAR2)
-RETURN NUMBER
-IS
+	client_paymentMethod IN VARCHAR2) AS
 	user_count VARCHAR2 (256);
 BEGIN
 	SELECT COUNT (*) INTO user_count
@@ -378,10 +407,10 @@ BEGIN
 	END IF;
 
 	INSERT INTO Clients VALUES (client_email, client_paymentMethod);
-    RETURN 0;
 END;
 
-CREATE OR REPLACE FUNCTION insert_courier (
+-- Function used to insert couriers
+CREATE OR REPLACE PROCEDURE insert_courier (
 	courier_firstName in VARCHAR2,
 	courier_lastName in VARCHAR2,
 	courier_email IN VARCHAR2,
@@ -390,9 +419,7 @@ CREATE OR REPLACE FUNCTION insert_courier (
 	courier_street IN VARCHAR2,
 	courier_house IN VARCHAR2,
 	courier_driverLicense IN VARCHAR2,
-	courier_NIB IN VARCHAR2)
-RETURN NUMBER
-IS
+	courier_NIB IN VARCHAR2) AS
 	user_count VARCHAR2 (256);
 BEGIN 
 	SELECT COUNT (*) INTO user_count
@@ -404,7 +431,6 @@ BEGIN
 	END IF;
 
 	INSERT INTO Couriers VALUES (courier_email, courier_driverLicense, courier_NIB);
-    RETURN 0;
 END;
 
 CREATE OR REPLACE VIEW highest_rated_couriers AS 
