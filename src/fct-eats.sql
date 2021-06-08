@@ -17,14 +17,14 @@ CREATE TABLE Has_Discount (
 -- Ordered_Food table
 CREATE TABLE Ordered_Food (
 	menuName VARCHAR2(50),
-	restaurantID VARCHAR2(20),
+	restaurantID NUMBER(20),
 	orderId NUMBER(20)
 );
 
 -- Has_Categories table
 CREATE TABLE Has_Categories (
 	categoryName VARCHAR2(50),
-	restaurantID VARCHAR2(20)
+	restaurantID NUMBER(20)
 );
 
 -- Used_Discount table
@@ -72,7 +72,7 @@ CREATE TABLE Categories (
 -- Menus table
 CREATE TABLE Menus ( 
 	menuName VARCHAR2(30),
-	restaurantID VARCHAR(20),
+	restaurantID NUMBER(20),
 	price NUMBER(3,2) 
 );
 
@@ -83,7 +83,7 @@ CREATE TABLE Orders (
 	courierEmail VARCHAR2 (254),
 	tip NUMBER (3,2),
 	status VARCHAR2 (10),
-	restaurantID VARCHAR2(20)
+	restaurantID NUMBER(20)
 );
 
 -- Vehicles table
@@ -96,7 +96,7 @@ CREATE TABLE Vehicles (
 -- Restaurants table
 CREATE TABLE Restaurants ( 
 	restaurantName VARCHAR2(50),
-    restaurantID VARCHAR2(20),
+    restaurantID NUMBER(20),
 	deliveryFee NUMBER (2,2),
 	city VARCHAR2(50),
 	street VARCHAR2(50),
@@ -314,8 +314,8 @@ CREATE OR REPLACE TRIGGER order_restaurant_limit
 BEFORE INSERT ON Ordered_Food
 FOR EACH ROW
 DECLARE
-	total_restaurants INTEGER;
-	same_restaurants INTEGER;
+	total_restaurants NUMBER;
+	same_restaurants NUMBER;
 BEGIN
 
 	-- Total of restaurants in this order (will always be 0 or 1) ---
@@ -396,14 +396,15 @@ CREATE OR REPLACE PROCEDURE insert_client (
 	client_street IN VARCHAR2,
 	client_house IN VARCHAR2,
 	client_paymentMethod IN VARCHAR2) AS
-	user_count VARCHAR2 (256);
+	user_count NUMBER;
 BEGIN
 	SELECT COUNT (*) INTO user_count
-	FROM Users WHERE email = client_email;
+	FROM Users
+	WHERE email = client_email
 
-	IF (user_count = 0)
-		THEN INSERT INTO Users VALUES (client_email, client_phone, client_city, 
-                                       client_street, client_house, client_firstName, client_lastName);
+	IF (user_count = 0) THEN
+		INSERT INTO Users VALUES (client_email, client_phone, client_city, 
+                                client_street, client_house, client_firstName, client_lastName);
 	END IF;
 
 	INSERT INTO Clients VALUES (client_email, client_paymentMethod);
@@ -411,8 +412,8 @@ END;
 
 -- Function used to insert couriers
 CREATE OR REPLACE PROCEDURE insert_courier (
-	courier_firstName in VARCHAR2,
-	courier_lastName in VARCHAR2,
+	courier_firstName IN VARCHAR2,
+	courier_lastName IN VARCHAR2,
 	courier_email IN VARCHAR2,
 	courier_phone IN NUMBER,
 	courier_city IN VARCHAR2,
@@ -420,14 +421,15 @@ CREATE OR REPLACE PROCEDURE insert_courier (
 	courier_house IN VARCHAR2,
 	courier_driverLicense IN VARCHAR2,
 	courier_NIB IN VARCHAR2) AS
-	user_count VARCHAR2 (256);
+	user_count NUMBER;
 BEGIN 
 	SELECT COUNT (*) INTO user_count
-	FROM Users WHERE email = courier_email;
+	FROM Users 
+	WHERE email = courier_email
 
-	IF (user_count = 0)
-		THEN INSERT INTO Users VALUES (courier_email, courier_phone, courier_city, 
-                                       courier_street, courier_house, courier_firstName, courier_lastName);
+	IF (user_count = 0) THEN
+		INSERT INTO Users VALUES (courier_email, courier_phone, courier_city, 
+                                courier_street, courier_house, courier_firstName, courier_lastName);
 	END IF;
 
 	INSERT INTO Couriers VALUES (courier_email, courier_driverLicense, courier_NIB);
