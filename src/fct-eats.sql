@@ -143,6 +143,11 @@ ALTER TABLE Clients ADD CONSTRAINT pk_client PRIMARY KEY (email);
 ALTER TABLE Clients ADD CONSTRAINT fk_client FOREIGN KEY (email) REFERENCES Users (email); 
 ALTER TABLE Clients ADD CONSTRAINT valid_payment CHECK (paymentMethod IN ('card', 'cash'));
 
+ALTER TABLE Restaurants ADD CONSTRAINT pk_restaurant PRIMARY KEY (restaurantID);
+ALTER TABLE Restaurants ADD CONSTRAINT fk_restaurant FOREIGN KEY (city, street, houseNumber) REFERENCES Address (city, street, houseNumber);
+ALTER TABLE Restaurants MODIFY (restaurantName NOT NULL, deliveryFee NOT NULL, city NOT NULL, street NOT NULL, houseNumber NOT NULL);
+ALTER TABLE Restaurants ADD CONSTRAINT valid_deliveryFee CHECK (deliveryFee >= 0);
+
 ALTER TABLE Orders ADD CONSTRAINT pk_order PRIMARY KEY (orderID);
 ALTER TABLE Orders ADD CONSTRAINT un_restaurantID UNIQUE (restaurantID);
 ALTER TABLE Orders ADD CONSTRAINT valid_orderID CHECK (orderID >= 0);
@@ -160,11 +165,6 @@ ALTER TABLE Discounts ADD CONSTRAINT valid_percentage CHECK (percentage BETWEEN 
 ALTER TABLE Ratings ADD CONSTRAINT valid_stars CHECK (stars BETWEEN 1 AND 5);
 ALTER TABLE Ratings ADD CONSTRAINT pk_ratings PRIMARY KEY (compliment);
 ALTER TABLE Ratings ADD CONSTRAINT fk_ratings FOREIGN KEY (orderId) REFERENCES Orders (orderId);
-
-ALTER TABLE Restaurants ADD CONSTRAINT pk_restaurant PRIMARY KEY (restaurantID);
-ALTER TABLE Restaurants ADD CONSTRAINT fk_restaurant FOREIGN KEY (city, street, houseNumber) REFERENCES Address (city, street, houseNumber);
-ALTER TABLE Restaurants MODIFY (restaurantName NOT NULL, deliveryFee NOT NULL, city NOT NULL, street NOT NULL, houseNumber NOT NULL);
-ALTER TABLE Restaurants ADD CONSTRAINT valid_deliveryFee CHECK (deliveryFee >= 0);
 
 ALTER TABLE Vehicles ADD CONSTRAINT pk_vehicles PRIMARY KEY (regNumber);
 ALTER TABLE Vehicles ADD CONSTRAINT fk_vehicles FOREIGN KEY (courierEmail) REFERENCES Couriers (email);
