@@ -42,13 +42,13 @@ CREATE TABLE Address (
 
 -- Users table
 CREATE TABLE Users (
+	firstName VARCHAR2(30),
+	lastName VARCHAR2(30),
 	email VARCHAR2 (256),
 	phoneNumber NUMBER (9, 0),
 	city VARCHAR2(50),
 	street VARCHAR2(50),
-	houseNumber VARCHAR2(10),
-	firstName VARCHAR2(30),
-	lastName VARCHAR2(30)
+	houseNumber VARCHAR2(10)
 );
 
 -- Clients table
@@ -481,13 +481,15 @@ CREATE OR REPLACE VIEW highest_rated_couriers AS
 
 -- View used for client report
 CREATE OR REPLACE VIEW client_information AS
-	SELECT *
-	FROM Clients INNER JOIN Users USING (email);
+SELECT *
+FROM Clients INNER JOIN Users USING (email);
+ORDER BY firstName;
 
 -- View used for courier report
 CREATE OR REPLACE VIEW courier_information AS
-	SELECT *
-	FROM Couriers INNER JOIN Users USING (email);
+SELECT *
+FROM Couriers INNER JOIN Users USING (email);
+ORDER BY firstName;
 
 -- Insertions
 
