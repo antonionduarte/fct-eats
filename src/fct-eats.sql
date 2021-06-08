@@ -96,7 +96,7 @@ CREATE TABLE Vehicles (
 -- Restaurants table
 CREATE TABLE Restaurants ( 
 	restaurantName VARCHAR2(50),
-    restaurantID NUMBER(20),
+	restaurantID NUMBER(20),
 	deliveryFee NUMBER (2,2),
 	city VARCHAR2(50),
 	street VARCHAR2(50),
@@ -432,7 +432,7 @@ CREATE OR REPLACE PROCEDURE insert_client (
 BEGIN
 	SELECT COUNT (*) INTO user_count
 	FROM Users
-	WHERE email = client_email
+	WHERE email = client_email;
 
 	IF (user_count = 0) THEN
 		INSERT INTO Users VALUES (client_email, client_phone, client_city, 
@@ -458,7 +458,7 @@ CREATE OR REPLACE PROCEDURE insert_courier (
 BEGIN 
 	SELECT COUNT (*) INTO user_count
 	FROM Users 
-	WHERE email = courier_email
+	WHERE email = courier_email;
 
 	IF (user_count = 0) THEN
 		INSERT INTO Users VALUES (courier_email, courier_phone, courier_city, 
@@ -484,13 +484,13 @@ CREATE OR REPLACE VIEW highest_rated_couriers AS
 -- View used for client report
 CREATE OR REPLACE VIEW client_information AS
 SELECT *
-FROM Clients INNER JOIN Users USING (email);
+FROM Clients INNER JOIN Users USING (email)
 ORDER BY firstName;
 
 -- View used for courier report
 CREATE OR REPLACE VIEW courier_information AS
 SELECT *
-FROM Couriers INNER JOIN Users USING (email);
+FROM Couriers INNER JOIN Users USING (email)
 ORDER BY firstName;
 
 -- Insertions
