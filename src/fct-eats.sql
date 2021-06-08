@@ -311,7 +311,6 @@ DECLARE
 	total_restaurants INTEGER;
 	same_restaurants INTEGER;
 BEGIN
-
 	-- Total of restaurants in this order (will always be 0 or 1) ---
 	SELECT COUNT(DISTINCT restaurantID) INTO total_restaurants
 	FROM Ordered_Food
