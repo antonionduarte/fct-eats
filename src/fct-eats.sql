@@ -1,3 +1,21 @@
+-- Drops
+
+DROP TABLE Ratings CASCADE CONSTRAINTS;
+DROP TABLE Has_Discount CASCADE CONSTRAINTS;
+DROP TABLE Ordered_Food CASCADE CONSTRAINTS;
+DROP TABLE Has_Categories CASCADE CONSTRAINTS;
+DROP TABLE Used_Discount CASCADE CONSTRAINTS;
+DROP TABLE Address CASCADE CONSTRAINTS;
+DROP TABLE Users CASCADE CONSTRAINTS;
+DROP TABLE Clients CASCADE CONSTRAINTS;
+DROP TABLE Couriers CASCADE CONSTRAINTS;
+DROP TABLE Categories CASCADE CONSTRAINTS;
+DROP TABLE Menus CASCADE CONSTRAINTS;
+DROP TABLE Orders CASCADE CONSTRAINTS;
+DROP TABLE Vehicles CASCADE CONSTRAINTS;
+DROP TABLE Restaurants CASCADE CONSTRAINTS;
+DROP TABLE Discounts CASCADE CONSTRAINTS;
+
 -- Create tables and Restrictions
 
 -- Ratings table
@@ -73,7 +91,7 @@ CREATE TABLE Categories (
 CREATE TABLE Menus ( 
 	menuName VARCHAR2(30),
 	restaurantID NUMBER(20),
-	price NUMBER(3,2) 
+	price NUMBER(38,2) 
 );
 
 -- Orders table
@@ -97,7 +115,7 @@ CREATE TABLE Vehicles (
 CREATE TABLE Restaurants ( 
 	restaurantName VARCHAR2(50),
 	restaurantID NUMBER(20),
-	deliveryFee NUMBER (2,2),
+	deliveryFee NUMBER (38,2),
 	city VARCHAR2(50),
 	street VARCHAR2(50),
 	houseNumber VARCHAR2(10)
@@ -125,6 +143,11 @@ ALTER TABLE Clients ADD CONSTRAINT pk_client PRIMARY KEY (email);
 ALTER TABLE Clients ADD CONSTRAINT fk_client FOREIGN KEY (email) REFERENCES Users (email); 
 ALTER TABLE Clients ADD CONSTRAINT valid_payment CHECK (paymentMethod IN ('card', 'cash'));
 
+ALTER TABLE Restaurants ADD CONSTRAINT pk_restaurant PRIMARY KEY (restaurantID);
+ALTER TABLE Restaurants ADD CONSTRAINT fk_restaurant FOREIGN KEY (city, street, houseNumber) REFERENCES Address (city, street, houseNumber);
+ALTER TABLE Restaurants MODIFY (restaurantName NOT NULL, deliveryFee NOT NULL, city NOT NULL, street NOT NULL, houseNumber NOT NULL);
+ALTER TABLE Restaurants ADD CONSTRAINT valid_deliveryFee CHECK (deliveryFee >= 0);
+
 ALTER TABLE Orders ADD CONSTRAINT pk_order PRIMARY KEY (orderID);
 ALTER TABLE Orders ADD CONSTRAINT un_restaurantID UNIQUE (restaurantID);
 ALTER TABLE Orders ADD CONSTRAINT valid_orderID CHECK (orderID >= 0);
@@ -142,11 +165,6 @@ ALTER TABLE Discounts ADD CONSTRAINT valid_percentage CHECK (percentage BETWEEN 
 ALTER TABLE Ratings ADD CONSTRAINT valid_stars CHECK (stars BETWEEN 1 AND 5);
 ALTER TABLE Ratings ADD CONSTRAINT pk_ratings PRIMARY KEY (compliment);
 ALTER TABLE Ratings ADD CONSTRAINT fk_ratings FOREIGN KEY (orderId) REFERENCES Orders (orderId);
-
-ALTER TABLE Restaurants ADD CONSTRAINT pk_restaurant PRIMARY KEY (restaurantID);
-ALTER TABLE Restaurants ADD CONSTRAINT fk_restaurant FOREIGN KEY (city, street, houseNumber) REFERENCES Address (city, street, houseNumber);
-ALTER TABLE Restaurants MODIFY (restaurantName NOT NULL, deliveryFee NOT NULL, city NOT NULL, street NOT NULL, houseNumber NOT NULL);
-ALTER TABLE Restaurants ADD CONSTRAINT valid_deliveryFee CHECK (deliveryFee >= 0);
 
 ALTER TABLE Vehicles ADD CONSTRAINT pk_vehicles PRIMARY KEY (regNumber);
 ALTER TABLE Vehicles ADD CONSTRAINT fk_vehicles FOREIGN KEY (courierEmail) REFERENCES Couriers (email);
@@ -189,17 +207,17 @@ INCREMENT BY 1;
 -- Triggers
 
 -- Automatically insert new order id from seq.
-CREATE OR REPLACE TRIGGER insert_order_id
-BEFORE INSERT ON Orders
-FOR EACH ROW
-DECLARE
-	new_order_id NUMBER (20);
-BEGIN
-	SELECT seq_order_id.nextval INTO new_order_id 
-		FROM dual;
-	:new.orderID := new_order_id;
-END;
-/
+--CREATE OR REPLACE TRIGGER insert_order_id
+--BEFORE INSERT ON Orders
+--FOR EACH ROW
+--DECLARE
+--	new_order_id NUMBER (20);
+-- BEGIN
+--	SELECT seq_order_id.nextval INTO new_order_id 
+--		FROM dual;
+--	:new.orderID := new_order_id;
+--END;
+--/
 
 -- Ensuring that a Courier isn't taking orders outside their city
 CREATE OR REPLACE TRIGGER courier_city_order
@@ -469,6 +487,25 @@ BEGIN
 END;
 /
 
+-- Procedure to add Orders
+CREATE OR REPLACE PROCEDURE insert_order (
+	order_id IN NUMBER,
+	client_email IN VARCHAR2,
+	courier_email IN VARCHAR2,
+	tip IN NUMBER,
+	status IN VARCHAR2,
+	restaurant_id IN NUMBER,
+	discount_code IN VARCHAR2
+) AS
+BEGIN
+	INSERT INTO Orders VALUES (order_id, client_email, courier_email, tip, status, restaurant_id);
+
+	IF discount_code IS NOT NULL
+		THEN INSERT INTO Used_Discount VALUES (discount_code, order_id);
+	END IF;
+END;
+/
+
 -- Views
 
 -- View the 10 couriers with the highest ratings
@@ -544,7 +581,7 @@ CREATE OR REPLACE VIEW lowest_fee AS
 
 -- Pre-defined Categories
 INSERT INTO Categories VALUES ('Pizza');
-INSERT INTO Categories VALUES ('Hamburguer');
+INSERT INTO Categories VALUES ('Hamburger');
 INSERT INTO Categories VALUES ('Sushi');
 INSERT INTO Categories VALUES ('Asian');
 INSERT INTO Categories VALUES ('Chinese');
