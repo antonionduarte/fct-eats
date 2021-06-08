@@ -538,6 +538,53 @@ CREATE OR REPLACE VIEW add_menu_available AS
 SELECT * 
 FROM Menus;
 
+-- View the restaurants available for a certain user
+CREATE OR REPLACE VIEW available_restaurants AS
+	SELECT restaurantName
+	FROM Clients INNER JOIN Users USING (email) INNER JOIN Restaurants USING (city)
+	WHERE Clients.email = 'abc@gmail.com';
+
+-- View the menu from a certain restaurant that has been ordered the most 
+CREATE OR REPLACE VIEW most_ordered_menus AS
+	SELECT Menus.menuName, COUNT(*) AS number_of_orders
+	FROM Restaurants INNER JOIN Menus USING (restaurantID) 
+						INNER JOIN Ordered_Food ON (Ordered_Food.menuName = Menus.menuName AND Ordered_Food.restaurantID = Restaurants.restaurantID)
+	WHERE Restaurants.restaurantID = 85 AND ROWNUM <= 1;
+	GROUP BY Menus.menuName;
+
+-- View the restaurant with the most orders
+CREATE OR REPLACE VIEW most_relevant_restaurants AS
+	SELECT Restaurants.restaurantID, Restaurants.restaurantName, COUNT(*) AS number_of_orders
+	FROM Restaurants INNER JOIN Orders ON (Restaurants.restaurantID = Orders.restaurantID)
+	WHERE Orders.status = 'received' AND ROWNUM <= 1
+	GROUP BY Restaurants.restaurantID, Restaurants.restaurantName;
+
+-- View the restaurant available for a customer within a certain category
+CREATE OR REPLACE VIEW restaurants_within_category AS
+	SELECT restaurantName
+	FROM Clients INNER JOIN Users USING (email) 
+					INNER JOIN Restaurants USING (city)
+						INNER JOIN Has_Categories USING (restaurantID)
+	WHERE Clients.email = 'abc@gmail.com' AND Has_Categories.categoryName = 'Sushi';
+
+-- View the restaurants with the highest rating within a certain city
+CREATE OR REPLACE VIEW best_restaurant AS
+	SELECT Restaurants.restaurantID, Restaurants.restaurantName, AVG(Ratings.stars) AS restaurant_rating
+	FROM Restaurants INNER JOIN Orders USING (restaurantID)
+						INNER JOIN Ratings USING (orderID)
+	WHERE Restaurants.city = 'Lisbon' AND ROWNUM <=1
+	GROUP BY Restaurants.restaurantID, Restaurants.restaurantName
+	ORDER BY restaurant_rating;
+
+-- View the restaurant with the lowest delivery fee 
+CREATE OR REPLACE VIEW lowest_fee AS 
+	SELECT r1.restaurantName
+	FROM Restaurants r1 INNER JOIN (
+									SELECT r2.restaurantID, r2.restaurantName, MIN(r2.deliveryFee) AS fee
+									FROM Restaurants r2
+									GROUP BY r2.restaurantID, r2.restaurantName;
+	) ON (r1.deliveryFee = fee);
+
 -- Insertions
 
 -- Pre-defined Categories
