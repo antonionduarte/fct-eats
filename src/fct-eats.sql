@@ -96,7 +96,7 @@ CREATE TABLE Vehicles (
 -- Restaurants table
 CREATE TABLE Restaurants ( 
 	restaurantName VARCHAR2(50),
-    restaurantID VARCHAR2(20),
+	restaurantID VARCHAR2(20),
 	deliveryFee NUMBER (2,2),
 	city VARCHAR2(50),
 	street VARCHAR2(50),
@@ -150,6 +150,7 @@ ALTER TABLE Restaurants ADD CONSTRAINT valid_deliveryFee CHECK (deliveryFee >= 0
 ALTER TABLE Vehicles ADD CONSTRAINT pk_vehicles PRIMARY KEY (regNumber);
 ALTER TABLE Vehicles ADD CONSTRAINT fk_vehicles FOREIGN KEY (courierEmail) REFERENCES Couriers (email);
 ALTER TABLE Vehicles MODIFY (vehicleType NOT NULL, courierEmail NOT NULL);
+ALTER TABLE Vehicles ADD CONSTRAINT CHECK (type IN ('motorcycle', 'car', 'bike'));
 
 ALTER TABLE Menus ADD CONSTRAINT pk_menus PRIMARY KEY (menuName, restaurantID);
 ALTER TABLE Menus ADD CONSTRAINT fk_menus FOREIGN KEY (restaurantID) REFERENCES Restaurants (restaurantID);
@@ -197,19 +198,6 @@ BEGIN
 		INTO new_order_id
 		FROM dual;
 	:new.orderID := new_order_id;
-END;
-
--- Automatically insert new restaurant id from seq.
-CREATE OR REPLACE TRIGGER insert_restaurant_id
-BEFORE INSERT ON Restaurants
-FOR EACH ROW
-DECLARE
-	new_restaurant_id NUMBER (20);
-BEGIN
-	SELECT seq_restaurant_id.nextval
-		INTO new_restaurant_id
-		FROM dual;
-	:new.restaurantID := new_restaurant_id;
 END;
 
 -- Ensuring that a Courier isn't taking orders outside their city
@@ -363,7 +351,6 @@ BEGIN
 	SELECT COUNT (*) INTO number_equal_addresses
 		FROM Address
 		WHERE city = :new.city AND street = :new.street AND houseNumber = :new.houseNumber;
-
 	IF (number_equal_addresses = 0)
 		THEN INSERT INTO Address VALUES (:new.city, :new.street, :new.houseNumber);
 	END IF;
@@ -378,15 +365,48 @@ BEGIN
 	SELECT COUNT (*) INTO number_equal_addresses
 		FROM Address
 		WHERE city = :new.city AND street = :new.street AND houseNumber = :new.houseNumber;
-
 	IF (number_equal_addresses = 0)
 		THEN INSERT INTO Address VALUES (:new.city, :new.street, :new.houseNumber);
 	END IF;
+END; 
+
+-- Functions and Procedures
+
+-- Procedure used to insert restaurants
+CREATE OR REPLACE PROCEDURE insert_restaurant (
+	restaurant_name IN VARCHAR2,
+	delivery_fee IN NUMBER,
+	city IN VARCHAR2,
+	street IN VARCHAR2,
+	houseNumber IN NUMBER,
+	category_name IN VARCHAR2) AS
+	category_count NUMBER;
+	restaurant_id NUMBER;
+BEGIN
+	restaurant_id := seq_restaurant_id.nextval;
+	
+	SELECT COUNT (*) INTO category_count
+	FROM Categories
+	WHERE categoryName = category_name;
+
+	IF (category_count = 0)
+		THEN Raise_Application_Error (-20001, 'The specified category does not exist.'); 
+	END IF;
+
+	INSERT INTO Restaurants VALUES (restaurant_name, restaurant_id, delivery_fee, city, street, houseNumber);
+	INSERT INTO Has_Categories VALUES (category_name, restaurant_id);
 END;
 
--- Functions and Views
+-- Add a discount to a client
+CREATE OR REPLACE PROCEDURE add_discount_client (
+	discount_code IN NUMBER,
+	client_email IN VARCHAR2
+)
+BEGIN
+	INSERT INTO Has_Discount VALUES (client_email, discount_code, 0);
+END;
 
--- Function used to insert clients
+-- Procedure used to insert clients
 CREATE OR REPLACE PROCEDURE insert_client (
 	client_firstName in VARCHAR2,
 	client_lastName in VARCHAR2,
@@ -409,7 +429,7 @@ BEGIN
 	INSERT INTO Clients VALUES (client_email, client_paymentMethod);
 END;
 
--- Function used to insert couriers
+-- Procedure used to insert couriers
 CREATE OR REPLACE PROCEDURE insert_courier (
 	courier_firstName in VARCHAR2,
 	courier_lastName in VARCHAR2,
@@ -433,6 +453,9 @@ BEGIN
 	INSERT INTO Couriers VALUES (courier_email, courier_driverLicense, courier_NIB);
 END;
 
+-- Views
+
+-- View the 10 couriers with the highest ratings
 CREATE OR REPLACE VIEW highest_rated_couriers AS 
 		SELECT Couriers.email, firstName, lastName, AVG(stars) AS avg_rating
 		FROM Couriers INNER JOIN Orders ON(Couriers.email = Orders.courierEmail) -- gets us the orders of each courier --
@@ -444,3 +467,13 @@ CREATE OR REPLACE VIEW highest_rated_couriers AS
 
 -- Insertions
 
+-- Pre-defined Categories
+INSERT INTO Categories VALUES ('Pizzeria');
+INSERT INTO Categories VALUES ('Hamburgueria');
+INSERT INTO Categories VALUES ('Sushi');
+INSERT INTO Categories VALUES ('Asian');
+INSERT INTO Categories VALUES ('Chinese');
+INSERT INTO Categories VALUES ('Italian');
+INSERT INTO Categories VALUES ('Pasta');
+INSERT INTO Categories VALUES ('Indian');
+INSERT INTO Categories VALUES ('Vietnamese');
