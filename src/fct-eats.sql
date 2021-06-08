@@ -126,6 +126,7 @@ ALTER TABLE Clients ADD CONSTRAINT fk_client FOREIGN KEY (email) REFERENCES User
 ALTER TABLE Clients ADD CONSTRAINT valid_payment CHECK (paymentMethod IN ('card', 'cash'));
 
 ALTER TABLE Orders ADD CONSTRAINT pk_order PRIMARY KEY (orderID);
+ALTER TABLE Orders ADD CONSTRAINT un_restaurantID UNIQUE (restaurantID);
 ALTER TABLE Orders ADD CONSTRAINT valid_orderID CHECK (orderID >= 0);
 ALTER TABLE Orders ADD CONSTRAINT fk_order1 FOREIGN KEY (clientEmail) REFERENCES Clients (email);
 ALTER TABLE Orders ADD CONSTRAINT fk_order2 FOREIGN KEY (courierEmail) REFERENCES Couriers (email);
@@ -149,8 +150,8 @@ ALTER TABLE Restaurants ADD CONSTRAINT valid_deliveryFee CHECK (deliveryFee >= 0
 
 ALTER TABLE Vehicles ADD CONSTRAINT pk_vehicles PRIMARY KEY (regNumber);
 ALTER TABLE Vehicles ADD CONSTRAINT fk_vehicles FOREIGN KEY (courierEmail) REFERENCES Couriers (email);
+ALTER TABLE Vehicles ADD CONSTRAINT valid_type CHECK (vehicleType IN ('motorcycle', 'car', 'bike'));
 ALTER TABLE Vehicles MODIFY (vehicleType NOT NULL, courierEmail NOT NULL);
-ALTER TABLE Vehicles ADD CONSTRAINT CHECK (type IN ('motorcycle', 'car', 'bike'));
 
 ALTER TABLE Menus ADD CONSTRAINT pk_menus PRIMARY KEY (menuName, restaurantID);
 ALTER TABLE Menus ADD CONSTRAINT fk_menus FOREIGN KEY (restaurantID) REFERENCES Restaurants (restaurantID);
@@ -194,11 +195,11 @@ FOR EACH ROW
 DECLARE
 	new_order_id NUMBER (20);
 BEGIN
-	SELECT seq_order_id.nextval 
-		INTO new_order_id
+	SELECT seq_order_id.nextval INTO new_order_id 
 		FROM dual;
 	:new.orderID := new_order_id;
 END;
+/
 
 -- Ensuring that a Courier isn't taking orders outside their city
 CREATE OR REPLACE TRIGGER courier_city_order
@@ -220,6 +221,7 @@ BEGIN
 		THEN Raise_Application_Error (-20001, 'Couriers must deliver in their city.');
 	END IF;
 END;
+/
 
 -- Ensure that a Courier can only do one delivery at a time
 CREATE OR REPLACE TRIGGER courier_deliveries
@@ -239,6 +241,7 @@ BEGIN
 
 	END IF;
 END;
+/
 
 --- Update User Discount Status to Used after insert on Used Discount ---
 CREATE OR REPLACE TRIGGER change_discount_status
@@ -255,6 +258,7 @@ BEGIN
 	SET discountUsed = 1
 	WHERE email = client_email AND Has_Discount.code = :new.code; 
 END;
+/
 
 --- Ensuring that no orders have customers and restaurants from diff cities ---
 CREATE OR REPLACE TRIGGER placing_order
@@ -278,6 +282,7 @@ BEGIN
 
   END IF;
 END;
+/
 
 --- Ensuring that an Order can only have one associated Discount. ---
 CREATE OR REPLACE TRIGGER discount_usage_limit
@@ -296,6 +301,7 @@ BEGIN
 
     END IF;
 END;
+/
 
 --- Ensuring that an Order does not include Menus from several different restaurants ---
 CREATE OR REPLACE TRIGGER order_restaurant_limit
@@ -323,6 +329,7 @@ BEGIN
 
 	END IF;
 END;
+/
 
 --- Ensures that no discount is used twice on the same order ---
 CREATE OR REPLACE TRIGGER discount_in_use
@@ -341,6 +348,7 @@ BEGIN
 		THEN Raise_Application_Error (-20609, 'This discount has been applied to your order already.');
 	END IF;
 END;
+/
 
 -- Add address before insert on User
 CREATE OR REPLACE TRIGGER add_address_user
@@ -355,6 +363,7 @@ BEGIN
 		THEN INSERT INTO Address VALUES (:new.city, :new.street, :new.houseNumber);
 	END IF;
 END;
+/
 
 -- Add address before insert on Restaurant
 CREATE OR REPLACE TRIGGER add_address_restaurant
@@ -369,6 +378,7 @@ BEGIN
 		THEN INSERT INTO Address VALUES (:new.city, :new.street, :new.houseNumber);
 	END IF;
 END; 
+/
 
 -- Functions and Procedures
 
@@ -396,15 +406,18 @@ BEGIN
 	INSERT INTO Restaurants VALUES (restaurant_name, restaurant_id, delivery_fee, city, street, houseNumber);
 	INSERT INTO Has_Categories VALUES (category_name, restaurant_id);
 END;
+/
 
 -- Add a discount to a client
 CREATE OR REPLACE PROCEDURE add_discount_client (
 	discount_code IN NUMBER,
 	client_email IN VARCHAR2
 )
+AS
 BEGIN
 	INSERT INTO Has_Discount VALUES (client_email, discount_code, 0);
 END;
+/
 
 -- Procedure used to insert clients
 CREATE OR REPLACE PROCEDURE insert_client (
@@ -428,6 +441,7 @@ BEGIN
 
 	INSERT INTO Clients VALUES (client_email, client_paymentMethod);
 END;
+/
 
 -- Procedure used to insert couriers
 CREATE OR REPLACE PROCEDURE insert_courier (
@@ -452,6 +466,7 @@ BEGIN
 
 	INSERT INTO Couriers VALUES (courier_email, courier_driverLicense, courier_NIB);
 END;
+/
 
 -- Views
 
