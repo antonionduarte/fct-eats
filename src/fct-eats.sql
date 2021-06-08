@@ -73,7 +73,7 @@ CREATE TABLE Categories (
 CREATE TABLE Menus ( 
 	menuName VARCHAR2(30),
 	restaurantID NUMBER(20),
-	price NUMBER(3,2) 
+	price NUMBER(38,2) 
 );
 
 -- Orders table
@@ -97,7 +97,7 @@ CREATE TABLE Vehicles (
 CREATE TABLE Restaurants ( 
 	restaurantName VARCHAR2(50),
 	restaurantID NUMBER(20),
-	deliveryFee NUMBER (2,2),
+	deliveryFee NUMBER (38,2),
 	city VARCHAR2(50),
 	street VARCHAR2(50),
 	houseNumber VARCHAR2(10)
