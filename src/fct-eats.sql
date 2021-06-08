@@ -126,6 +126,7 @@ ALTER TABLE Clients ADD CONSTRAINT fk_client FOREIGN KEY (email) REFERENCES User
 ALTER TABLE Clients ADD CONSTRAINT valid_payment CHECK (paymentMethod IN ('card', 'cash'));
 
 ALTER TABLE Orders ADD CONSTRAINT pk_order PRIMARY KEY (orderID);
+ALTER TABLE Orders ADD CONSTRAINT un_restaurantID UNIQUE (restaurantID);
 ALTER TABLE Orders ADD CONSTRAINT valid_orderID CHECK (orderID >= 0);
 ALTER TABLE Orders ADD CONSTRAINT fk_order1 FOREIGN KEY (clientEmail) REFERENCES Clients (email);
 ALTER TABLE Orders ADD CONSTRAINT fk_order2 FOREIGN KEY (courierEmail) REFERENCES Couriers (email);
@@ -149,6 +150,7 @@ ALTER TABLE Restaurants ADD CONSTRAINT valid_deliveryFee CHECK (deliveryFee >= 0
 
 ALTER TABLE Vehicles ADD CONSTRAINT pk_vehicles PRIMARY KEY (regNumber);
 ALTER TABLE Vehicles ADD CONSTRAINT fk_vehicles FOREIGN KEY (courierEmail) REFERENCES Couriers (email);
+ALTER TABLE Vehicles ADD CONSTRAINT valid_type CHECK (vehicleType IN ('motorcycle', 'car', 'bike'));
 ALTER TABLE Vehicles MODIFY (vehicleType NOT NULL, courierEmail NOT NULL);
 
 ALTER TABLE Menus ADD CONSTRAINT pk_menus PRIMARY KEY (menuName, restaurantID);
@@ -193,24 +195,11 @@ FOR EACH ROW
 DECLARE
 	new_order_id NUMBER (20);
 BEGIN
-	SELECT seq_order_id.nextval 
-		INTO new_order_id
+	SELECT seq_order_id.nextval INTO new_order_id 
 		FROM dual;
 	:new.orderID := new_order_id;
 END;
-
--- Automatically insert new restaurant id from seq.
-CREATE OR REPLACE TRIGGER insert_restaurant_id
-BEFORE INSERT ON Restaurants
-FOR EACH ROW
-DECLARE
-	new_restaurant_id NUMBER (20);
-BEGIN
-	SELECT seq_restaurant_id.nextval
-		INTO new_restaurant_id
-		FROM dual;
-	:new.restaurantID := new_restaurant_id;
-END;
+/
 
 -- Ensuring that a Courier isn't taking orders outside their city
 CREATE OR REPLACE TRIGGER courier_city_order
@@ -232,6 +221,7 @@ BEGIN
 		THEN Raise_Application_Error (-20001, 'Couriers must deliver in their city.');
 	END IF;
 END;
+/
 
 -- Ensure that a Courier can only do one delivery at a time
 CREATE OR REPLACE TRIGGER courier_deliveries
@@ -251,6 +241,7 @@ BEGIN
 
 	END IF;
 END;
+/
 
 --- Update User Discount Status to Used after insert on Used Discount ---
 CREATE OR REPLACE TRIGGER change_discount_status
@@ -267,6 +258,7 @@ BEGIN
 	SET discountUsed = 1
 	WHERE email = client_email AND Has_Discount.code = :new.code; 
 END;
+/
 
 --- Ensuring that no orders have customers and restaurants from diff cities ---
 CREATE OR REPLACE TRIGGER placing_order
@@ -290,6 +282,7 @@ BEGIN
 
   END IF;
 END;
+/
 
 --- Ensuring that an Order can only have one associated Discount. ---
 CREATE OR REPLACE TRIGGER discount_usage_limit
@@ -308,6 +301,7 @@ BEGIN
 
     END IF;
 END;
+/
 
 --- Ensuring that an Order does not include Menus from several different restaurants ---
 CREATE OR REPLACE TRIGGER order_restaurant_limit
@@ -317,7 +311,6 @@ DECLARE
 	total_restaurants NUMBER;
 	same_restaurants NUMBER;
 BEGIN
-
 	-- Total of restaurants in this order (will always be 0 or 1) ---
 	SELECT COUNT(DISTINCT restaurantID) INTO total_restaurants
 	FROM Ordered_Food
@@ -335,6 +328,7 @@ BEGIN
 
 	END IF;
 END;
+/
 
 --- Ensures that no discount is used twice on the same order ---
 CREATE OR REPLACE TRIGGER discount_in_use
@@ -353,6 +347,7 @@ BEGIN
 		THEN Raise_Application_Error (-20609, 'This discount has been applied to your order already.');
 	END IF;
 END;
+/
 
 -- Add address before insert on User
 CREATE OR REPLACE TRIGGER add_address_user
@@ -363,11 +358,11 @@ BEGIN
 	SELECT COUNT (*) INTO number_equal_addresses
 		FROM Address
 		WHERE city = :new.city AND street = :new.street AND houseNumber = :new.houseNumber;
-
 	IF (number_equal_addresses = 0)
 		THEN INSERT INTO Address VALUES (:new.city, :new.street, :new.houseNumber);
 	END IF;
 END;
+/
 
 -- Add address before insert on Restaurant
 CREATE OR REPLACE TRIGGER add_address_restaurant
@@ -378,15 +373,52 @@ BEGIN
 	SELECT COUNT (*) INTO number_equal_addresses
 		FROM Address
 		WHERE city = :new.city AND street = :new.street AND houseNumber = :new.houseNumber;
-
 	IF (number_equal_addresses = 0)
 		THEN INSERT INTO Address VALUES (:new.city, :new.street, :new.houseNumber);
 	END IF;
+END; 
+/
+
+-- Functions and Procedures
+
+-- Procedure used to insert restaurants
+CREATE OR REPLACE PROCEDURE insert_restaurant (
+	restaurant_name IN VARCHAR2,
+	delivery_fee IN NUMBER,
+	city IN VARCHAR2,
+	street IN VARCHAR2,
+	houseNumber IN NUMBER,
+	category_name IN VARCHAR2) AS
+	category_count NUMBER;
+	restaurant_id NUMBER;
+BEGIN
+	restaurant_id := seq_restaurant_id.nextval;
+	
+	SELECT COUNT (*) INTO category_count
+	FROM Categories
+	WHERE categoryName = category_name;
+
+	IF (category_count = 0)
+		THEN Raise_Application_Error (-20001, 'The specified category does not exist.'); 
+	END IF;
+
+	INSERT INTO Restaurants VALUES (restaurant_name, restaurant_id, delivery_fee, city, street, houseNumber);
+	INSERT INTO Has_Categories VALUES (category_name, restaurant_id);
 END;
+/
 
--- Functions and Views
+-- Add a discount to a client
+CREATE OR REPLACE PROCEDURE add_discount_client (
+	discount_code IN NUMBER,
+	client_email IN VARCHAR2
+)
+AS
+BEGIN
+	INSERT INTO Has_Discount VALUES (client_email, discount_code, 0);
+END;
+/
 
--- Function used to insert clients
+-- Procedure used to insert clients
 CREATE OR REPLACE PROCEDURE insert_client (
 	client_firstName in VARCHAR2,
 	client_lastName in VARCHAR2,
@@ -409,8 +441,9 @@ BEGIN
 
 	INSERT INTO Clients VALUES (client_email, client_paymentMethod);
 END;
+/
 
--- Function used to insert couriers
+-- Procedure used to insert couriers
 CREATE OR REPLACE PROCEDURE insert_courier (
 	courier_firstName IN VARCHAR2,
 	courier_lastName IN VARCHAR2,
@@ -434,7 +467,11 @@ BEGIN
 
 	INSERT INTO Couriers VALUES (courier_email, courier_driverLicense, courier_NIB);
 END;
+/
 
+-- Views
+
+-- View the 10 couriers with the highest ratings
 CREATE OR REPLACE VIEW highest_rated_couriers AS 
 		SELECT Couriers.email, firstName, lastName, AVG(stars) AS avg_rating
 		FROM Couriers INNER JOIN Orders ON(Couriers.email = Orders.courierEmail) -- gets us the orders of each courier --
@@ -446,3 +483,13 @@ CREATE OR REPLACE VIEW highest_rated_couriers AS
 
 -- Insertions
 
+-- Pre-defined Categories
+INSERT INTO Categories VALUES ('Pizzeria');
+INSERT INTO Categories VALUES ('Hamburgueria');
+INSERT INTO Categories VALUES ('Sushi');
+INSERT INTO Categories VALUES ('Asian');
+INSERT INTO Categories VALUES ('Chinese');
+INSERT INTO Categories VALUES ('Italian');
+INSERT INTO Categories VALUES ('Pasta');
+INSERT INTO Categories VALUES ('Indian');
+INSERT INTO Categories VALUES ('Vietnamese');
