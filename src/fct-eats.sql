@@ -526,6 +526,17 @@ BEGIN
 END;
 /
 
+-- Procedure to update Orders
+CREATE OR REPLACE PROCEDURE update_order (
+	order_id IN NUMBER,
+	newStatus IN VARCHAR2
+) AS
+BEGIN
+  UPDATE Orders 
+  SET status = newStatus
+  WHERE orderID = order_id;
+END;
+
 -- Views
 
 -- View the 10 couriers with the highest ratings
