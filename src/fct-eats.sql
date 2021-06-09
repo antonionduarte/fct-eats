@@ -110,7 +110,7 @@ CREATE TABLE Orders (
 
 -- Vehicles table
 CREATE TABLE Vehicles (
-	regNumber CHAR(6),
+	regNumber VARCHAR2(6),
 	vehicleType VARCHAR2(50),
 	courierEmail VARCHAR2(254) 
 );
@@ -507,7 +507,7 @@ CREATE OR REPLACE PROCEDURE insert_courier (
 	courier_house IN VARCHAR2,
 	courier_driverLicense IN VARCHAR2,
 	courier_NIB IN VARCHAR2,
-	vehicle_regNumber IN CHAR,
+	vehicle_regNumber IN VARCHAR2,
 	vehicle_type IN VARCHAR2
 	) AS
 	user_count NUMBER;
@@ -602,7 +602,6 @@ BEGIN
 	END IF;
 
 	SELECT tip INTO order_tip FROM Orders WHERE orderID = order_id; 
-	 
 	RETURN total_cost; 
 END;
 /
@@ -716,7 +715,6 @@ CREATE OR REPLACE VIEW second_most_popular_category AS
 	FROM Has_Categories INNER JOIN Restaurants ON (Has_Categories.restaurantID = Restaurants.restaurantID)
 	WHERE ROWNUM = 2
 	GROUP BY Has_Categories.categoryName;
-	
 
 -- View the cities with restaurants of the 2 most popular categories
 CREATE OR REPLACE VIEW cities_with_popular_categories AS
@@ -828,7 +826,6 @@ BEGIN
 	update_order(5, 'received');
 END;
 /
-
 
 -- Adding ratings to orders
 INSERT INTO Ratings VALUES (4, 'Nice', 1);
