@@ -110,7 +110,7 @@ CREATE TABLE Orders (
 
 -- Vehicles table
 CREATE TABLE Vehicles (
-	regNumber CHAR(6),
+	regNumber VARCHAR2(6),
 	vehicleType VARCHAR2(50),
 	courierEmail VARCHAR2(254) 
 );
@@ -507,9 +507,9 @@ CREATE OR REPLACE PROCEDURE insert_courier (
 	courier_house IN VARCHAR2,
 	courier_driverLicense IN VARCHAR2,
 	courier_NIB IN VARCHAR2,
-	vehicle_regNumber IN CHAR,
+	vehicle_regNumber IN VARCHAR2,
 	vehicle_type IN VARCHAR2
-	) AS
+) AS
 	user_count NUMBER;
 BEGIN 
 	SELECT COUNT (*) INTO user_count
@@ -602,7 +602,6 @@ BEGIN
 	END IF;
 
 	SELECT tip INTO order_tip FROM Orders WHERE orderID = order_id; 
-	 
 	RETURN total_cost; 
 END;
 /
@@ -716,7 +715,6 @@ CREATE OR REPLACE VIEW second_most_popular_category AS
 	FROM Categories INNER JOIN Has_Categories ON (Categories.categoryName = Has_Categories.categoryName)
 	WHERE ROWNUM = 2
 	GROUP BY Has_Categories.categoryName;
-	
 
 -- View the cities with restaurants of the 2 most popular categories
 CREATE OR REPLACE VIEW cities_with_popular_categories AS
@@ -749,21 +747,21 @@ BEGIN
 	add_restaurant_from_script('Talking Trees', 2, 'Lisbon', 'Rua LAP', '1', 'Vietnamese', 'Pho', 8);
 	add_restaurant_from_script('Tandori', 4, 'Lisbon', 'Rua BD', '44', 'Indian', 'Curry', 8);
 	add_restaurant_from_script('Pasta La Vista', 4, 'Lisbon', 'Rua PEE', '90', 'Pasta', 'Bolognese', 10);
-	add_restaurant_from_script('Spaghetto', 3, 'Lisbos', 'Rua TC', '7', 'Italian', 'Carbonara', 10);
+	add_restaurant_from_script('Spaghetto', 3, 'Lisbon', 'Rua TC', '7', 'Italian', 'Carbonara', 10);
 	add_restaurant_from_script('Wok Noodles', 4, 'Lisbon', 'Rua AM2', '5', 'Chinese', 'Pequin Duck', 6);
 END;
 /
 
 -- Some Couriers
 BEGIN
-	insert_courier('Tai', 'Lopez', 'tai@mail.com', 420420421, 'Lisbon', 'Travessa da Cidade', '12', '919235A', 'PT12318231');
-	insert_courier('Elon', 'Musk', 'musk@mail.com', 420420422, 'Lisbon', 'Travessa da Cidade', '12', '919235A', 'PT12318232');
-	insert_courier('Ash', 'Ketchum', 'ash@mail.com', 420420423, 'Almada', 'Travessa da Cidade', '12', '919235A', 'PT52318231');
-	insert_courier('Logan', 'Paul', 'lp@mail.com', 420420424, 'Almada', 'Travessa da Cidade', '12', '919235A', 'PT62318231');
-	insert_courier('Nick', 'Crompton', 'nick@mail.com', 420420425, 'Setúbal', 'Travessa da Cidade', '12', '919235A', 'PT72318231');
-	insert_courier('Artur', 'Morgano', 'am@mail.com', 420420426, 'Setúbal', 'Travessa da Cidade', '12', '919235A', 'PT17318231');
-	insert_courier('Tony', 'Spark', 'spark@mail.com', 420420427, 'New York', 'Travessa da Cidade', '12', '919235A', 'PT82318231');
-	insert_courier('John', 'Martstan', 'johnmars@mail.com', 420420428, 'Lisbon', 'Travessa da Cidade', '12', '919235A', 'PT12918231');
+	insert_courier('Tai', 'Lopez', 'tai@mail.com', 420420421, 'Lisbon', 'Travessa da Cidade', '12', '919235A', 'PT12318231', '123A', 'car');
+	insert_courier('Elon', 'Musk', 'musk@mail.com', 420420422, 'Lisbon', 'Travessa da Cidade', '12', '919235A', 'PT12318232', '124B', 'bike');
+	insert_courier('Ash', 'Ketchum', 'ash@mail.com', 420420423, 'Almada', 'Travessa da Cidade', '12', '919235A', 'PT52318231', '125C', 'bike');
+	insert_courier('Logan', 'Paul', 'lp@mail.com', 420420424, 'Almada', 'Travessa da Cidade', '12', '919235A', 'PT62318231', '126D', 'motorcycle');
+	insert_courier('Nick', 'Crompton', 'nick@mail.com', 420420425, 'Setúbal', 'Travessa da Cidade', '12', '919235A', 'PT72318231', '127E', 'car');
+	insert_courier('Artur', 'Morgano', 'am@mail.com', 420420426, 'Setúbal', 'Travessa da Cidade', '12', '919235A', 'PT17318231', '128F', 'bike');
+	insert_courier('Tony', 'Spark', 'spark@mail.com', 420420427, 'New York', 'Travessa da Cidade', '12', '919235A', 'PT82318231', '129G', 'bike');
+	insert_courier('John', 'Martstan', 'johnmars@mail.com', 420420428, 'Lisbon', 'Travessa da Cidade', '12', '919235A', 'PT12918231', '200H', 'motorcycle');
 END;
 /
 
@@ -828,7 +826,6 @@ BEGIN
 	update_order(5, 'received');
 END;
 /
-
 
 -- Adding ratings to orders
 INSERT INTO Ratings VALUES (4, 'Nice', 1);
