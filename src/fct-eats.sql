@@ -641,14 +641,14 @@ END;
 
 -- Some Couriers
 BEGIN
-	insert_courier('António', 'Duarte', 'antonio@mail.com', 420420420, 'Lisbon', 'Travessa da Cidade', '12', '919235A');
+	insert_courier('Anthony', 'Duarte', 'antonio@mail.com', 420420420, 'Lisbon', 'Travessa da Cidade', '12', '919235A', 'PT12318231');
 END;
 /
 
 -- Some Clients
 BEGIN
-	insert_client('Gabriela', 'Costa', 'gabriela@mail.com', 421421421, 'Lisbon', 'Outra Travessa', 'card')
-	insert_client('Artur', 'Miguel', 'amd@mail.com', 422422421, 'Almada', 'Travessinha', 'card')
-	insert_client('David', 'Semedo', 'david@mail.com', 423421421, 'Lisbon', 'Rua Grande', 'cash')
+	insert_client('Gabriela', 'Costa', 'gabriela@mail.com', 421421421, 'Lisbon', 'Outra Travessa', '21', 'card');
+	insert_client('Artur', 'Miguel', 'amd@mail.com', 422422421, 'Almada', 'Travessinha', '22B','card');
+	insert_client('David', 'Semedo', 'david@mail.com', 423421421, 'Lisbon', 'Rua Grande', '23C','cash');
 END;
 /
