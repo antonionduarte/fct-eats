@@ -707,13 +707,13 @@ CREATE OR REPLACE VIEW restaurant_lowest_fee AS
 -- View the first and secon most popular categories
 CREATE OR REPLACE VIEW most_popular_category AS 
 	SELECT categoryName, COUNT(*) AS restaurants_in_category
-	FROM Categories INNER JOIN Has_Categories USING (categoryName)
+	FROM Categories INNER JOIN Has_Categories ON (Categories.categoryName = Has_Categories.categoryName)
 	WHERE ROWNUM = 1
 	GROUP BY Has_Categories.categoryName;
 
 CREATE OR REPLACE VIEW second_most_popular_category AS 
 	SELECT categoryName, COUNT(*) AS restaurants_in_category
-	FROM Categories INNER JOIN Has_Categories USING (categoryName)
+	FROM Categories INNER JOIN Has_Categories ON (Categories.categoryName = Has_Categories.categoryName)
 	WHERE ROWNUM = 2
 	GROUP BY Has_Categories.categoryName;
 	
