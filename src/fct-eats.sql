@@ -713,13 +713,13 @@ CREATE OR REPLACE VIEW cities_with AS (
 	(
 		SELECT Restaurants.city
 		FROM Restaurants INNER JOIN Has_Categories ON (Has_Categories.restaurantID = Restaurants.restaurantID)
-							INNER JOIN most_popular_category ON (Has_Categories.categoryName = two_most_popular_categories.categoryName)
+							INNER JOIN most_popular_category ON (Has_Categories.categoryName = two_most_popular_categories.categoryName);
 	)
 	INTERSECT
 	(
 		SELECT Restaurants.city
 		FROM Restaurants INNER JOIN Has_Categories ON (Has_Categories.restaurantID = Restaurants.restaurantID)
-							INNER JOIN second_most_popular_category ON (Has_Categories.categoryName = two_most_popular_categories.categoryName)
+							INNER JOIN second_most_popular_category ON (Has_Categories.categoryName = two_most_popular_categories.categoryName);
 	)
 )
 
