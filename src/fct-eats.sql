@@ -102,7 +102,7 @@ CREATE TABLE Orders (
 	orderID NUMBER(20),
 	clientEmail VARCHAR2 (254),
 	courierEmail VARCHAR2 (254),
-	tip NUMBER (3,2),
+	tip NUMBER (5,2),
 	status VARCHAR2 (10),
 	restaurantID NUMBER(20),
 	orderDate DATE
@@ -709,19 +709,19 @@ CREATE OR REPLACE VIEW second_most_popular_category AS
 	
 
 -- View the cities with restaurants of the 2 most popular categories
-CREATE OR REPLACE VIEW cities_with AS (
-	(
-		SELECT Restaurants.city
-		FROM Restaurants INNER JOIN Has_Categories ON (Has_Categories.restaurantID = Restaurants.restaurantID)
-							INNER JOIN most_popular_category ON (Has_Categories.categoryName = two_most_popular_categories.categoryName);
-	)
-	INTERSECT
-	(
-		SELECT Restaurants.city
-		FROM Restaurants INNER JOIN Has_Categories ON (Has_Categories.restaurantID = Restaurants.restaurantID)
-							INNER JOIN second_most_popular_category ON (Has_Categories.categoryName = two_most_popular_categories.categoryName);
-	)
-);
+--CREATE OR REPLACE VIEW cities_with AS (
+--	(
+--		SELECT Restaurants.city
+--		FROM Restaurants INNER JOIN Has_Categories ON (Has_Categories.restaurantID = Restaurants.restaurantID)
+--							INNER JOIN most_popular_category ON (Has_Categories.categoryName = two_most_popular_categories.categoryName);
+--	)
+--	INTERSECT
+--	(
+--		SELECT Restaurants.city
+--		FROM Restaurants INNER JOIN Has_Categories ON (Has_Categories.restaurantID = Restaurants.restaurantID)
+--							INNER JOIN second_most_popular_category ON (Has_Categories.categoryName = two_most_popular_categories.categoryName);
+--	)
+--);
 
 -- Insertions
 
@@ -812,12 +812,12 @@ BEGIN
  insert_order('gabriela@mail.com', 'musk@mail.com', 0, get_restaurant_ID('Talking Trees'), 'Pho ga', NULL);
  insert_order('amd@mail.com', 'lp@mail.com', 5, get_restaurant_ID('Sushi King'), 'Sashimi', 'koJbqIsyYVf2ZPvp');
  insert_order('david@mail.com', 'johnmars@mail.com', 1, get_restaurant_ID('Tandori'), 'Curry', 'koJbqIsyYVf2ZPvp');
- insert_order('goncalo@mail.com', 'tai@mail.com', 6, get_restaurant_ID('Wok Noodles'), 'Stir fry', 'koJbqIsyYVf2ZPvp');
- insert_order('goncalo@mail.com', 'musk@mail.com', 9, get_restaurant_ID('Burger King'), 'Whopper', NULL);
- insert_order('goncalo@mail.com', 'johnmars@mail.com', 10, get_restaurant_ID('Burger King'), 'Whopper', NULL);
+ -- insert_order('goncalo@mail.com', 'tai@mail.com', 6, get_restaurant_ID('Wok Noodles'), 'Stir fry', 'koJbqIsyYVf2ZPvp');
+ -- insert_order('goncalo@mail.com', 'musk@mail.com', 9, get_restaurant_ID('Burger King'), 'Whopper', NULL);
+ -- insert_order('goncalo@mail.com', 'johnmars@mail.com', 10, get_restaurant_ID('Burger King'), 'Whopper', NULL);
  insert_order('carlos@mail.com', 'ash@mail.com', 17, get_restaurant_ID('Sushi King'), 'Sashimi', 'koJbqIsyYVf2ZPvp');
- insert_order('gabriela@mail.com', 'tai@mail.com', 3, get_restaurant_ID('Wok Noodles'), 'Stir fry', NULL);
- insert_order('tony@mail.com', 'tai@mail.com', 21, get_restaurant_ID('Burger King'), 'Whopper', 'koJbqIsyYVf2ZPvp');
+ -- insert_order('gabriela@mail.com', 'tai@mail.com', 3, get_restaurant_ID('Wok Noodles'), 'Stir fry', NULL);
+ -- insert_order('tony@mail.com', 'tai@mail.com', 21, get_restaurant_ID('Burger King'), 'Whopper', 'koJbqIsyYVf2ZPvp');
 END;
 /
 
