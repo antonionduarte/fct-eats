@@ -563,42 +563,48 @@ END;
 /
 
 -- Function to calculate total cost of Order
-CREATE OR REPLACE FUNCTION order_cost (
-	order_id IN NUMBER
-)
-RETURN NUMBER
-IS
-	CURSOR menus_price IS SELECT price 
-	FROM Ordered_Food INNER JOIN Menus USING (menuName, restaurantID)
-	WHERE orderID = order_id;
+CREATE OR REPLACE FUNCTION order_cost ( 
+	order_id IN NUMBER 
+) 
+RETURN NUMBER 
+IS 
+	CURSOR menus_price IS SELECT price  
+	FROM Ordered_Food INNER JOIN Menus USING (menuName, restaurantID) 
+	WHERE orderID = order_id; 
+ 
+	menu_price NUMBER (38, 2); 
+	total_cost NUMBER (38, 2); 
+	discount_percentage NUMBER (3); 
+	discount_code VARCHAR2 (30); 
+	order_tip NUMBER (38, 2); 
+	count_discount NUMBER;
+BEGIN 
+	total_cost := 0.00; 
+	discount_code := NULL;
 
-	menu_price NUMBER (38, 2);
-	total_cost NUMBER (38, 2);
-	discount_percentage NUMBER (3);
-	discount_code VARCHAR2 (30);
-	order_tip NUMBER (38, 2);
-BEGIN
-	total_cost := 0.00;
+	FOR mp IN menus_price LOOP 
+		total_cost := total_cost + mp.price; 
+	END LOOP; 
 
-	FOR mp IN menus_price LOOP
-		total_cost := total_cost + mp.price;
-	END LOOP;
-    
-	SELECT code INTO discount_code FROM Used_Discount INNER JOIN Orders USING (orderID) WHERE orderID = order_id;
-	
-	IF discount_code IS NOT NULL 		
-		THEN SELECT percentage INTO discount_percentage FROM Discounts WHERE code = discount_code;
- 		total_cost := total_cost - (total_cost * (discount_percentage / 100));
+	SELECT COUNT (*) INTO count_discount
+	FROM Orders INNER JOIN Used_Discount USING (orderID) WHERE orderID = order_id;
+
+	IF (count_discount > 0) THEN
+			SELECT code INTO discount_code FROM Used_Discount INNER JOIN Orders USING (orderID) WHERE orderID = order_id; 
 	END IF;
 
-	SELECT tip INTO order_tip FROM Orders WHERE orderID = order_id;
-	
-	IF order_tip IS NOT NULL
-		THEN total_cost := total_cost + order_tip;
+	IF (count_discount > 0) THEN 
+			SELECT percentage INTO discount_percentage FROM Discounts WHERE code = discount_code;
 	END IF;
-	
-	RETURN total_cost;
-END;
+
+	IF (count_discount > 0) THEN 
+			total_cost := total_cost - (total_cost * (discount_percentage / 100)); 
+	END IF;
+
+	SELECT tip INTO order_tip FROM Orders WHERE orderID = order_id; 
+	 
+	RETURN total_cost; 
+END; 
 
 -- Views
 
