@@ -148,6 +148,7 @@ ALTER TABLE Restaurants ADD CONSTRAINT pk_restaurant PRIMARY KEY (restaurantID);
 ALTER TABLE Restaurants ADD CONSTRAINT fk_restaurant FOREIGN KEY (city, street, houseNumber) REFERENCES Address (city, street, houseNumber);
 ALTER TABLE Restaurants MODIFY (restaurantName NOT NULL, deliveryFee NOT NULL, city NOT NULL, street NOT NULL, houseNumber NOT NULL);
 ALTER TABLE Restaurants ADD CONSTRAINT valid_deliveryFee CHECK (deliveryFee >= 0);
+ALTER TABLE Restaurants ADD CONSTRAINT un_restaurantName UNIQUE (restaurantName);
 
 ALTER TABLE Orders ADD CONSTRAINT pk_order PRIMARY KEY (orderID);
 ALTER TABLE Orders ADD CONSTRAINT un_restaurantID UNIQUE (restaurantID);
@@ -382,7 +383,7 @@ END;
 CREATE OR REPLACE TRIGGER ensure_order_open
 BEFORE INSERT ON Ordered_Food
 FOR EACH ROW
-DECLARE order_state NUMBER;
+DECLARE order_state VARCHAR2 (10);
 BEGIN
 	SELECT status INTO order_state FROM Orders WHERE orderID = :new.orderID;
 
@@ -533,7 +534,9 @@ ORDER BY firstName;
 
 -- View for Orders
 CREATE OR REPLACE VIEW view_orders AS
-SELECT 
+SELECT
+orderID AS ID,
+status AS Status,
 order_client.firstName AS Client,
 order_courier.firstName AS Courier,
 order_restaurant.restaurantName AS Restaurant,
