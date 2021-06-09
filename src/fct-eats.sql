@@ -601,7 +601,8 @@ BEGIN
 			total_cost := total_cost - (total_cost * (discount_percentage / 100)); 
 	END IF;
 
-	SELECT tip INTO order_tip FROM Orders WHERE orderID = order_id; 
+	SELECT tip INTO order_tip FROM Orders WHERE orderID = order_id;
+	total_cost := total_cost + order_tip;
 	RETURN total_cost; 
 END;
 /
