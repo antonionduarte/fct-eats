@@ -425,21 +425,24 @@ BEGIN
 END;
 /
 
--- Procedure add restaurant for tests
-CREATE OR REPLACE PROCEDURE add_restaurant (
+-- This procedure is exclusively used in the script to add the initial restaurants
+CREATE OR REPLACE PROCEDURE add_restaurant_from_script (
 	restaurant_name IN VARCHAR2,
 	delivery_fee IN NUMBER,
 	city IN VARCHAR2,
 	street IN VARCHAR2,
 	houseNumber IN NUMBER,
-	category_name IN VARCHAR2)
+	category_name IN VARCHAR2,
+	menu_name IN VARCHAR2,
+	menu_price IN NUMBER)
 	AS
 		restaurant_id NUMBER;
 	BEGIN 
-        restaurant_id := seq_restaurant_id.nextval;
+		restaurant_id := seq_restaurant_id.nextval;
 
 		INSERT INTO Restaurants VALUES (restaurant_name, restaurant_id, delivery_fee, city, street, houseNumber);
 		INSERT INTO Has_Categories VALUES (category_name, restaurant_id);
+		INSERT INTO Menus VALUES (menu_name, restaurant_id, menu_price);
 	END;
 /
 
@@ -626,9 +629,9 @@ CREATE OR REPLACE VIEW restaurant_lowest_fee
 	SELECT restaurantName
 	FROM Restaurants
 	WHERE deliveryFee = (
-			SELECT Min (deliveryFee) FROM Restaurants WHERE city = :P4_CITIES
+			SELECT Min (deliveryFee) FROM Restaurants WHERE city = 'Lisbon'
 	)
-	AND city = :P4_CITIES;
+	AND city = 'Lisbon';
 
 -- Insertions
 
@@ -645,10 +648,10 @@ INSERT INTO Categories VALUES ('Vietnamese');
 
 -- Some restaurants
 BEGIN
-	add_restaurant('McDonalds', 10, 'Lisbon', 'Rua', '12', 'Hamburger');
-	add_restaurant('Burguer King', 12, 'Lisbon', 'Outra Rua', '12', 'Hamburger');
-	add_restaurant('Sushi King', 12, 'Almada', 'Rua Outra', '15', 'Sushi');
-	add_restaurant('Pizzeria', 14, 'Lisbon', 'Outre Rue', '16', 'Pizza');
+	add_restaurant_from_script('McDonalds', 10, 'Lisbon', 'Rua', '12', 'Hamburger', 'Big Tasty', 6);
+	add_restaurant_from_script('Burguer King', 12, 'Lisbon', 'Outra Rua', '12', 'Hamburger', 'Whopper', 7);
+	add_restaurant_from_script('Sushi King', 12, 'Almada', 'Rua Outra', '15', 'Sushi', 'Salmon Sushi', 10);
+	add_restaurant_from_script('Pizzeria', 14, 'Lisbon', 'Outre Rue', '16', 'Pizza', 'Margherita', 14);
 END;
 /
 
