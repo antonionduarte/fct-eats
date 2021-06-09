@@ -698,7 +698,7 @@ CREATE OR REPLACE VIEW restaurant_lowest_fee AS
 	)
 	AND city = 'Lisbon';
 
--- View the 2 most popular categories
+-- View the first and secon most popular categories
 CREATE OR REPLACE VIEW most_popular_category AS 
 	SELECT categoryName, COUNT(*) AS restaurants_in_category
 	FROM Has_Categories INNER JOIN Restaurants ON (Has_Categories.restaurantID = Restaurants.restaurantID)
@@ -713,19 +713,14 @@ CREATE OR REPLACE VIEW second_most_popular_category AS
 	
 
 -- View the cities with restaurants of the 2 most popular categories
---CREATE OR REPLACE VIEW cities_with AS (
---	(
---		SELECT Restaurants.city
---		FROM Restaurants INNER JOIN Has_Categories ON (Has_Categories.restaurantID = Restaurants.restaurantID)
---							INNER JOIN most_popular_category ON (Has_Categories.categoryName = two_most_popular_categories.categoryName);
---	)
---	INTERSECT
---	(
---		SELECT Restaurants.city
---		FROM Restaurants INNER JOIN Has_Categories ON (Has_Categories.restaurantID = Restaurants.restaurantID)
---							INNER JOIN second_most_popular_category ON (Has_Categories.categoryName = two_most_popular_categories.categoryName);
---	)
---);
+CREATE OR REPLACE VIEW cities_with_popular_categories AS
+		SELECT Restaurants.city
+		FROM Restaurants INNER JOIN Has_Categories ON (Has_Categories.restaurantID = Restaurants.restaurantID)
+							INNER JOIN most_popular_category ON (Has_Categories.categoryName = most_popular_category.categoryName)
+	INTERSECT
+		SELECT Restaurants.city
+		FROM Restaurants INNER JOIN Has_Categories ON (Has_Categories.restaurantID = Restaurants.restaurantID)
+							INNER JOIN second_most_popular_category ON (Has_Categories.categoryName = second_most_popular_category.categoryName);
 
 -- Insertions
 
