@@ -326,9 +326,7 @@ BEGIN
 
 	-- Ensures that if there is already a restaurant in this order, it cannot be different than the new one --
 	IF ((total_restaurants = 1) AND (same_restaurants = 0))
-
 		THEN Raise_Application_Error (-20690, 'You can only order from one restaurant at a time.');
-
 	END IF;
 END;
 /
@@ -568,15 +566,15 @@ BEGIN
     
 	SELECT code INTO discount_code FROM Used_Discount INNER JOIN Orders USING (orderID);
 	
-	IF discount_code IS NOT NULL 
-			THEN SELECT percentage INTO discount_percentage FROM Discounts WHERE code = discount_code;
-			total_cost := total_cost - (total_cost * (discount_percentage / 100));
+	IF discount_code IS NOT NULL 		
+		THEN SELECT percentage INTO discount_percentage FROM Discounts WHERE code = discount_code;
+ 		total_cost := total_cost - (total_cost * (discount_percentage / 100));
 	END IF;
 
 	SELECT tip INTO order_tip FROM Orders WHERE orderID = order_id;
 	
 	IF order_tip IS NOT NULL
-			THEN total_cost := total_cost + order_tip;
+		THEN total_cost := total_cost + order_tip;
 	END IF;
 	
 	RETURN total_cost;
