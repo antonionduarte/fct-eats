@@ -536,6 +536,7 @@ BEGIN
   SET status = newStatus
   WHERE orderID = order_id;
 END;
+/
 
 -- Views
 
@@ -619,14 +620,16 @@ CREATE OR REPLACE VIEW best_restaurant AS
 	GROUP BY Restaurants.restaurantID, Restaurants.restaurantName
 	ORDER BY restaurant_rating;
 
--- View the restaurant with the lowest delivery fee 
-CREATE OR REPLACE VIEW lowest_fee AS 
-	SELECT r1.restaurantName
-	FROM Restaurants r1 INNER JOIN (
-									SELECT r2.restaurantID, r2.restaurantName, MIN(r2.deliveryFee) AS fee
-									FROM Restaurants r2
-									GROUP BY r2.restaurantID, r2.restaurantName
-	) ON (r1.deliveryFee = fee);
+-- View the lowest delivery fee
+CREATE OR REPLACE VIEW lowest_fee AS
+    SELECT MIN (deliveryFee) AS deliveryFee
+    FROM Restaurants;
+    
+-- Restaurants with lowest delivery fee
+CREATE OR REPLACE VIEW restaurant_lowest_fee AS
+    SELECT restaurantName
+    FROM Restaurants
+    WHERE deliveryFee = (SELECT deliveryFee FROM lowest_fee);
 
 -- Insertions
 
