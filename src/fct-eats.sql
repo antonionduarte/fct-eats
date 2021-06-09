@@ -395,8 +395,6 @@ BEGIN
 END; 
 /
 
-ALTER TABLE Orders ADD CONSTRAINT valid_status CHECK (status IN ('received', 'processing', 'en route'));
-
 -- Ensure we can't add food to a closed order
 CREATE OR REPLACE TRIGGER ensure_order_open
 BEFORE INSERT ON Ordered_Food
@@ -405,7 +403,7 @@ DECLARE order_state NUMBER;
 BEGIN
 	SELECT status INTO order_state FROM Orders WHERE orderID = :new.orderID;
 
-	IF (order_state = received)
+	IF (order_state = 'received')
 		THEN Raise_Application_Error (-20002, 'You can not add food to an already finished order');
 	END IF; 
 END;
