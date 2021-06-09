@@ -509,8 +509,8 @@ CREATE OR REPLACE PROCEDURE insert_order (
 	tip IN NUMBER,
 	status IN VARCHAR2,
 	restaurant_id IN NUMBER,
-	menu_name IN VARCHAR2
-	discount_code IN VARCHAR2,
+	menu_name IN VARCHAR2,
+	discount_code IN VARCHAR2
 ) AS
 BEGIN
 	INSERT INTO Orders VALUES (order_id, client_email, courier_email, tip, status, restaurant_id, SYSDATE);
@@ -568,7 +568,7 @@ CREATE OR REPLACE VIEW most_ordered_menus AS
 	SELECT Menus.menuName, COUNT(*) AS number_of_orders
 	FROM Restaurants INNER JOIN Menus USING (restaurantID) 
 						INNER JOIN Ordered_Food ON (Ordered_Food.menuName = Menus.menuName AND Ordered_Food.restaurantID = Restaurants.restaurantID)
-	WHERE Restaurants.restaurantID = 85 AND ROWNUM <= 1;
+	WHERE Restaurants.restaurantID = 85 AND ROWNUM <= 1
 	GROUP BY Menus.menuName;
 
 -- View the restaurant with the most orders
@@ -601,7 +601,7 @@ CREATE OR REPLACE VIEW lowest_fee AS
 	FROM Restaurants r1 INNER JOIN (
 									SELECT r2.restaurantID, r2.restaurantName, MIN(r2.deliveryFee) AS fee
 									FROM Restaurants r2
-									GROUP BY r2.restaurantID, r2.restaurantName;
+									GROUP BY r2.restaurantID, r2.restaurantName
 	) ON (r1.deliveryFee = fee);
 
 -- Insertions
