@@ -560,7 +560,51 @@ BEGIN
 END;
 /
 
+-- Function to calculate total cost of Order
+CREATE OR REPLACE FUNCTION order_cost (
+	order_id IN NUMBER
+)
+RETURN NUMBER
+IS
+	CURSOR menus_price IS SELECT price 
+	FROM Ordered_Food INNER JOIN Menus USING (menuName, restaurantID)
+	WHERE orderID = order_id;
+
+	menu_price NUMBER (38, 2);
+	total_cost NUMBER (38, 2);
+	discount_percentage NUMBER (3);
+	discount_code VARCHAR2 (30);
+	order_tip NUMBER (38, 2);
+BEGIN
+	total_cost := 0.00;
+
+	FOR mp IN menus_price LOOP
+		total_cost := total_cost + mp.price;
+	END LOOP;
+    
+	SELECT code INTO discount_code FROM Used_Discount INNER JOIN Orders USING (orderID);
+	
+	IF discount_code IS NOT NULL 
+			THEN SELECT percentage INTO discount_percentage FROM Discounts WHERE code = discount_code;
+			total_cost := total_cost - (total_cost * (discount_percentage / 100));
+	END IF;
+
+	SELECT tip INTO order_tip FROM Orders WHERE orderID = order_id;
+	
+	IF order_tip IS NOT NULL
+			THEN total_cost := total_cost + order_tip;
+	END IF;
+	
+	RETURN total_cost;
+END;
+/
+
 -- Views
+
+-- NOTE: In some of the views in the script
+-- there is given a specific argument e.g. available_restaraunt = 'Lisbon'
+-- but in the APEX implementation we substitute that argument with
+-- the one received in a Text Field.
 
 -- View the 10 couriers with the highest ratings
 CREATE OR REPLACE VIEW highest_rated_couriers AS 
@@ -667,21 +711,19 @@ CREATE OR REPLACE VIEW second_most_popular_category AS
 	
 
 -- View the cities with restaurants of the 2 most popular categories
-CREATE OR REPLACE VIEW cities_with AS 
+CREATE OR REPLACE VIEW cities_with AS (
 	(
 		SELECT Restaurants.city
 		FROM Restaurants INNER JOIN Has_Categories ON (Has_Categories.restaurantID = Restaurants.restaurantID)
-							INNER JOIN most_popular_category ON (Has_Categories.categoryName = two_most_popular_categories.categoryName);
-
+							INNER JOIN most_popular_category ON (Has_Categories.categoryName = two_most_popular_categories.categoryName)
 	)
 	INTERSECT
 	(
 		SELECT Restaurants.city
 		FROM Restaurants INNER JOIN Has_Categories ON (Has_Categories.restaurantID = Restaurants.restaurantID)
-							INNER JOIN second_most_popular_category ON (Has_Categories.categoryName = two_most_popular_categories.categoryName);
-
-
+							INNER JOIN second_most_popular_category ON (Has_Categories.categoryName = two_most_popular_categories.categoryName)
 	)
+)
 
 -- Insertions
 
