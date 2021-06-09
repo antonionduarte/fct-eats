@@ -16,6 +16,9 @@ DROP TABLE Vehicles CASCADE CONSTRAINTS;
 DROP TABLE Restaurants CASCADE CONSTRAINTS;
 DROP TABLE Discounts CASCADE CONSTRAINTS;
 
+DROP SEQUENCE seq_order_id;
+DROP SEQUENCE seq_restaurant_id;
+
 -- Create tables and Restrictions
 
 -- Ratings table
@@ -586,7 +589,7 @@ SELECT *
 FROM Menus;
 
 -- View the restaurants available for a certain user
-CREATE OR REPLACE VIEW available_restaurants AS
+CREATE OR REPLACE VIEW available_restaurant AS
 	SELECT restaurantName
 	FROM Clients INNER JOIN Users ON (Clients.email = Users.email) 
                     INNER JOIN Restaurants ON (Users.city = Restaurants.city)
@@ -625,7 +628,7 @@ CREATE OR REPLACE VIEW best_restaurant AS
 	ORDER BY restaurant_rating;
 
 -- View the lowest delivery fee
-CREATE OR REPLACE VIEW restaurant_lowest_fee
+CREATE OR REPLACE VIEW restaurant_lowest_fee AS
 	SELECT restaurantName
 	FROM Restaurants
 	WHERE deliveryFee = (
@@ -648,14 +651,14 @@ INSERT INTO Categories VALUES ('Vietnamese');
 
 -- Some restaurants
 BEGIN
-	add_restaurant_from_script('McDonalds', 10, 'Lisbon', 'Rua', '12', 'Hamburger', 'Big Tasty', 6);
-	add_restaurant_from_script('Burguer King', 12, 'Lisbon', 'Outra Rua', '62', 'Hamburger', 'Whopper', 7);
-	add_restaurant_from_script('Sushi King', 12, 'Almada', 'Rua Outra', '15', 'Sushi', 'Salmon Sushi', 10);
-	add_restaurant_from_script('Talking Trees', 14, 'Lisbon', 'Rua LAP', '1', 'Vietnamese', 'Pho', 8);
-	add_restaurant_from_script('Tandori', 14, 'Lisbon', 'Rua BD', '44', 'Indian', 'Curry', 8);
-	add_restaurant_from_script('Pasta La Vista', 14, 'Lisbon', 'Rua PEE', '90', 'Pasta', 'Bolognese', 10);
-	add_restaurant_from_script('Spaghetto' 'Lisbon', 'Rua TC', '7', 'Italian', 'Carbonara', 10);
-	add_restaurant_from_script('Wok Noodles', 14, 'Lisbon', 'Rua AM2', '5', 'Chinese', 'Pequin Duck', 6);
+	add_restaurant_from_script('McDonalds', 1, 'Lisbon', 'Rua', '12', 'Hamburger', 'Big Tasty', 6);
+	add_restaurant_from_script('Burguer King', 5, 'Lisbon', 'Outra Rua', '62', 'Hamburger', 'Whopper', 7);
+	add_restaurant_from_script('Sushi King', 2, 'Almada', 'Rua Outra', '15', 'Sushi', 'Salmon Sushi', 10);
+	add_restaurant_from_script('Talking Trees', 2, 'Lisbon', 'Rua LAP', '1', 'Vietnamese', 'Pho', 8);
+	add_restaurant_from_script('Tandori', 4, 'Lisbon', 'Rua BD', '44', 'Indian', 'Curry', 8);
+	add_restaurant_from_script('Pasta La Vista', 4, 'Lisbon', 'Rua PEE', '90', 'Pasta', 'Bolognese', 10);
+	add_restaurant_from_script('Spaghetto', 3, 'Lisbon', 'Rua TC', '7', 'Italian', 'Carbonara', 10);
+	add_restaurant_from_script('Wok Noodles', 4, 'Lisbon', 'Rua AM2', '5', 'Chinese', 'Pequin Duck', 6);
 END;
 /
 
@@ -668,7 +671,7 @@ BEGIN
 	insert_courier('Nick', 'Crompton', 'nick@mail.com', 420420425, 'Setúbal', 'Travessa da Cidade', '12', '919235A', 'PT72318231');
 	insert_courier('Artur', 'Morgano', 'antonio@mail.com', 420420426, 'Setúbal', 'Travessa da Cidade', '12', '919235A', 'PT17318231');
 	insert_courier('Tony', 'Spark', 'spark@mail.com', 420420427, 'New York', 'Travessa da Cidade', '12', '919235A', 'PT82318231');
-	insert_courier('João', 'Martstão', 'antonio@mail.com', 420420428, 'Lisbon', 'Travessa da Cidade', '12', '919235A', 'PT12918231');
+	insert_courier('John', 'Martstan', 'johnmars@mail.com', 420420428, 'Lisbon', 'Travessa da Cidade', '12', '919235A', 'PT12918231');
 END;
 /
 
@@ -677,9 +680,9 @@ BEGIN
 	insert_client('Gabriela', 'Costa', 'gabriela@mail.com', 421421421, 'Lisbon', 'Outra Travessa', '21', 'card');
 	insert_client('Artur', 'Dias', 'amd@mail.com', 422422421, 'Almada', 'Travessinha', '22B','card');
 	insert_client('David', 'Semedo', 'david@mail.com', 423421421, 'Lisbon', 'Rua Grande', '23C','cash');
-	insert_client('Gonçalo', 'Virgínia', 'goncalo@mail.com', 424421421, 'Lisbon', 'Rua Pequena', '8', 'card');
-	insert_client('António', 'Duarte', 'tony@mail.com', 421521421, 'Lisbon', 'Rua Média', '1', 'card');
-	insert_client('Carlos', 'Damásio', 'carlos@mail.com', 421621421, 'Almada', 'Rua do Papel', '2', 'card');
+	insert_client('Gonçalo', 'Virginia', 'goncalo@mail.com', 424421421, 'Lisbon', 'Rua Pequena', '8', 'card');
+	insert_client('Tony', 'Duarte', 'tony@mail.com', 421521421, 'Lisbon', 'Rua Média', '1', 'card');
+	insert_client('Carlos', 'Damasio', 'carlos@mail.com', 421621421, 'Almada', 'Rua do Papel', '2', 'card');
 	insert_client('Matthias', 'Knorr', 'matthias@mail.com', 421721421, 'Lisbon', 'Rua Interessante', '9', 'card');
 	insert_client('John', 'Wick', 'babayaga@mail.com', 421821421, 'New York', 'Central Park', '4', 'card');
 	insert_client('Miguel', 'Real', 'mr@mail.com', 421921421, 'Setúbal', 'Rua do Choco Frito', '78', 'card');
