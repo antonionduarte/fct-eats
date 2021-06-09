@@ -579,7 +579,7 @@ BEGIN
 		total_cost := total_cost + mp.price;
 	END LOOP;
     
-	SELECT code INTO discount_code FROM Used_Discount INNER JOIN Orders USING (orderID);
+	SELECT code INTO discount_code FROM Used_Discount INNER JOIN Orders USING (orderID) WHERE orderID = order_id;
 	
 	IF discount_code IS NOT NULL 		
 		THEN SELECT percentage INTO discount_percentage FROM Discounts WHERE code = discount_code;
@@ -594,7 +594,6 @@ BEGIN
 	
 	RETURN total_cost;
 END;
-/
 
 -- Views
 
