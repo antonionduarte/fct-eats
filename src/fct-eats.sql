@@ -506,7 +506,10 @@ CREATE OR REPLACE PROCEDURE insert_courier (
 	courier_street IN VARCHAR2,
 	courier_house IN VARCHAR2,
 	courier_driverLicense IN VARCHAR2,
-	courier_NIB IN VARCHAR2) AS
+	courier_NIB IN VARCHAR2,
+	vehicle_regNumber IN CHAR,
+	vehicle_type IN VARCHAR2
+	) AS
 	user_count NUMBER;
 BEGIN 
 	SELECT COUNT (*) INTO user_count
@@ -519,6 +522,8 @@ BEGIN
 	END IF;
 
 	INSERT INTO Couriers VALUES (courier_email, courier_driverLicense, courier_NIB);
+	INSERT INTO Vehicles VALUES (vehicle_regNumber, vehicle_type, courier_email);
+	
 END;
 /
 
