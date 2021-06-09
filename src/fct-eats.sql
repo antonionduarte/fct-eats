@@ -533,9 +533,7 @@ CREATE OR REPLACE PROCEDURE insert_order (
 	menu_name IN VARCHAR2,
 	discount_code IN VARCHAR2
 ) AS
-BEGIN
-	order_id
-
+BEGIN    
 	INSERT INTO Orders VALUES (order_id, client_email, courier_email, tip, 'processing', restaurant_id, SYSDATE);
 
 	INSERT INTO Ordered_Food VALUES (menu_name, restaurant_id, order_id);
@@ -721,7 +719,7 @@ CREATE OR REPLACE VIEW cities_with AS (
 		FROM Restaurants INNER JOIN Has_Categories ON (Has_Categories.restaurantID = Restaurants.restaurantID)
 							INNER JOIN second_most_popular_category ON (Has_Categories.categoryName = two_most_popular_categories.categoryName)
 	)
-)
+);
 
 -- Insertions
 
@@ -809,14 +807,14 @@ END;
 -- Some Orders
 BEGIN
   insert_order(seq_order_id.nextval, 'gabriela@mail.com', 'tai@mail.com', 12, get_restaurant_ID('Burger King'), 'Whopper', 'koJbqIsyYVf2ZPvptNkR');
-  insert_order(seq_order_id.nextval, 'gabriela@mail.com', 'musk@mail.com', 0, get_restaurant_ID('Talking Trees'), 'Pho ga', );
+  insert_order(seq_order_id.nextval, 'gabriela@mail.com', 'musk@mail.com', 0, get_restaurant_ID('Talking Trees'), 'Pho ga', NULL);
   insert_order(seq_order_id.nextval, 'amd@mail.com', 'lp@mail.com', 5, get_restaurant_ID('Sushi King'), 'Sashimi', 'koJbqIsyYVf2ZPvptNkR');
   insert_order(seq_order_id.nextval, 'david@mail.com', 'johnmars@mail.com', 1, get_restaurant_ID('Tandori'), 'Curry', 'koJbqIsyYVf2ZPvptNkR');
   insert_order(seq_order_id.nextval, 'goncalo@mail.com', 'tai@mail.com', 6, get_restaurant_ID('Wok Noodles'), 'Stir fry', 'koJbqIsyYVf2ZPvptNkR');
-  insert_order(seq_order_id.nextval, 'goncalo@mail.com', 'musk@mail.com', 9, get_restaurant_ID('Burger King'), 'Whopper', );
-  insert_order(seq_order_id.nextval, 'goncalo@mail.com', 'johnmars@mail.com', 10, get_restaurant_ID('Burger King'), 'Whopper', );
+  insert_order(seq_order_id.nextval, 'goncalo@mail.com', 'musk@mail.com', 9, get_restaurant_ID('Burger King'), 'Whopper', NULL);
+  insert_order(seq_order_id.nextval, 'goncalo@mail.com', 'johnmars@mail.com', 10, get_restaurant_ID('Burger King'), 'Whopper', NULL);
   insert_order(seq_order_id.nextval, 'carlos@mail.com', 'ash@mail.com', 17, get_restaurant_ID('Sushi King'), 'Sashimi', 'koJbqIsyYVf2ZPvptNkR');
-  insert_order(seq_order_id.nextval, 'gabriela@mail.com', 'tai@mail.com', 3, get_restaurant_ID('Wok Noodles'), 'Stir fry', );
+  insert_order(seq_order_id.nextval, 'gabriela@mail.com', 'tai@mail.com', 3, get_restaurant_ID('Wok Noodles'), 'Stir fry', NULL);
   insert_order(seq_order_id.nextval, 'tony@mail.com', 'tai@mail.com', 21, get_restaurant_ID('Burger King'), 'Whopper', 'koJbqIsyYVf2ZPvptNkR');
 END;
 /
