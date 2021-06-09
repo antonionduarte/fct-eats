@@ -646,22 +646,40 @@ INSERT INTO Categories VALUES ('Vietnamese');
 -- Some restaurants
 BEGIN
 	add_restaurant('McDonalds', 10, 'Lisbon', 'Rua', '12', 'Hamburger');
-	add_restaurant('Burguer King', 12, 'Lisbon', 'Outra Rua', '12', 'Hamburger');
+	add_restaurant('Burguer King', 12, 'Lisbon', 'Outra Rua', '62', 'Hamburger');
 	add_restaurant('Sushi King', 12, 'Almada', 'Rua Outra', '15', 'Sushi');
-	add_restaurant('Pizzeria', 14, 'Lisbon', 'Outre Rue', '16', 'Pizza');
+	add_restaurant('Talking Trees', 14, 'Lisbon', 'Rua LAP', '1', 'Vietnamese');
+	add_restaurant('Tandori', 14, 'Lisbon', 'Rua BD', '44', 'Indian');
+	add_restaurant('Pasta La Vista', 14, 'Lisbon', 'Rua PEE', '90', 'Pasta');
+	add_restaurant('Spaghetto' 'Lisbon', 'Rua TC', '7', 'Italian');
+	add_restaurant('Wok Noodles', 14, 'Lisbon', 'Rua AM2', '5', 'Chinese');
 END;
 /
 
 -- Some Couriers
 BEGIN
-	insert_courier('Anthony', 'Duarte', 'antonio@mail.com', 420420420, 'Lisbon', 'Travessa da Cidade', '12', '919235A', 'PT12318231');
+	insert_courier('Tai', 'Lopez', 'tai@mail.com', 420420421, 'Lisbon', 'Travessa da Cidade', '12', '919235A', 'PT12318231');
+	insert_courier('Elon', 'Musk', 'musk@mail.com', 420420422, 'Lisbon', 'Travessa da Cidade', '12', '919235A', 'PT12318232');
+	insert_courier('Ash', 'Ketchum', 'ash@mail.com', 420420423, 'Almada', 'Travessa da Cidade', '12', '919235A', 'PT52318231');
+	insert_courier('Logan', 'Paul', 'lp@mail.com', 420420424, 'Almada', 'Travessa da Cidade', '12', '919235A', 'PT62318231');
+	insert_courier('Nick', 'Crompton', 'nick@mail.com', 420420425, 'Setúbal', 'Travessa da Cidade', '12', '919235A', 'PT72318231');
+	insert_courier('Artur', 'Morgano', 'antonio@mail.com', 420420426, 'Setúbal', 'Travessa da Cidade', '12', '919235A', 'PT17318231');
+	insert_courier('Tony', 'Spark', 'spark@mail.com', 420420427, 'New York', 'Travessa da Cidade', '12', '919235A', 'PT82318231');
+	insert_courier('João', 'Martstão', 'antonio@mail.com', 420420428, 'Lisbon', 'Travessa da Cidade', '12', '919235A', 'PT12918231');
 END;
 /
 
 -- Some Clients
 BEGIN
 	insert_client('Gabriela', 'Costa', 'gabriela@mail.com', 421421421, 'Lisbon', 'Outra Travessa', '21', 'card');
-	insert_client('Artur', 'Miguel', 'amd@mail.com', 422422421, 'Almada', 'Travessinha', '22B','card');
+	insert_client('Artur', 'Dias', 'amd@mail.com', 422422421, 'Almada', 'Travessinha', '22B','card');
 	insert_client('David', 'Semedo', 'david@mail.com', 423421421, 'Lisbon', 'Rua Grande', '23C','cash');
+	insert_client('Gonçalo', 'Virgínia', 'goncalo@mail.com', 424421421, 'Lisbon', 'Rua Pequena', '8', 'card');
+	insert_client('António', 'Duarte', 'tony@mail.com', 421521421, 'Lisbon', 'Rua Média', '1', 'card');
+	insert_client('Carlos', 'Damásio', 'carlos@mail.com', 421621421, 'Almada', 'Rua do Papel', '2', 'card');
+	insert_client('Matthias', 'Knorr', 'matthias@mail.com', 421721421, 'Lisbon', 'Rua Interessante', '9', 'card');
+	insert_client('John', 'Wick', 'babayaga@mail.com', 421821421, 'New York', 'Central Park', '4', 'card');
+	insert_client('Miguel', 'Real', 'mr@mail.com', 421921421, 'Setúbal', 'Rua do Choco Frito', '78', 'card');
+	insert_client('Eren', 'Jaeger', 'ejaeger@mail.com', 421021421, 'Setúbal', 'Mais Choco Frito', '99', 'cash');
 END;
 /
