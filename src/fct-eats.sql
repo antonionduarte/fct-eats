@@ -425,21 +425,24 @@ BEGIN
 END;
 /
 
--- Procedure add restaurant for tests
-CREATE OR REPLACE PROCEDURE add_restaurant (
+-- This procedure is exclusively used in the script to add the initial restaurants
+CREATE OR REPLACE PROCEDURE add_restaurant_from_script (
 	restaurant_name IN VARCHAR2,
 	delivery_fee IN NUMBER,
 	city IN VARCHAR2,
 	street IN VARCHAR2,
 	houseNumber IN NUMBER,
-	category_name IN VARCHAR2)
+	category_name IN VARCHAR2,
+	menu_name IN VARCHAR2,
+	menu_price IN NUMBER)
 	AS
 		restaurant_id NUMBER;
 	BEGIN 
-        restaurant_id := seq_restaurant_id.nextval;
+		restaurant_id := seq_restaurant_id.nextval;
 
 		INSERT INTO Restaurants VALUES (restaurant_name, restaurant_id, delivery_fee, city, street, houseNumber);
 		INSERT INTO Has_Categories VALUES (category_name, restaurant_id);
+		INSERT INTO Menus VALUES (menu_name, restaurant_id, menu_price);
 	END;
 /
 
@@ -626,9 +629,9 @@ CREATE OR REPLACE VIEW restaurant_lowest_fee
 	SELECT restaurantName
 	FROM Restaurants
 	WHERE deliveryFee = (
-			SELECT Min (deliveryFee) FROM Restaurants WHERE city = :P4_CITIES
+			SELECT Min (deliveryFee) FROM Restaurants WHERE city = 'Lisbon'
 	)
-	AND city = :P4_CITIES;
+	AND city = 'Lisbon';
 
 -- Insertions
 
@@ -645,14 +648,14 @@ INSERT INTO Categories VALUES ('Vietnamese');
 
 -- Some restaurants
 BEGIN
-	add_restaurant('McDonalds', 10, 'Lisbon', 'Rua', '12', 'Hamburger');
-	add_restaurant('Burguer King', 12, 'Lisbon', 'Outra Rua', '62', 'Hamburger');
-	add_restaurant('Sushi King', 12, 'Almada', 'Rua Outra', '15', 'Sushi');
-	add_restaurant('Talking Trees', 14, 'Lisbon', 'Rua LAP', '1', 'Vietnamese');
-	add_restaurant('Tandori', 14, 'Lisbon', 'Rua BD', '44', 'Indian');
-	add_restaurant('Pasta La Vista', 14, 'Lisbon', 'Rua PEE', '90', 'Pasta');
-	add_restaurant('Spaghetto' 'Lisbon', 'Rua TC', '7', 'Italian');
-	add_restaurant('Wok Noodles', 14, 'Lisbon', 'Rua AM2', '5', 'Chinese');
+	add_restaurant_from_script('McDonalds', 10, 'Lisbon', 'Rua', '12', 'Hamburger', 'Big Tasty', 6);
+	add_restaurant_from_script('Burguer King', 12, 'Lisbon', 'Outra Rua', '62', 'Hamburger', 'Whopper', 7);
+	add_restaurant_from_script('Sushi King', 12, 'Almada', 'Rua Outra', '15', 'Sushi', 'Salmon Sushi', 10);
+	add_restaurant_from_script('Talking Trees', 14, 'Lisbon', 'Rua LAP', '1', 'Vietnamese', 'Pho', 8);
+	add_restaurant_from_script('Tandori', 14, 'Lisbon', 'Rua BD', '44', 'Indian', 'Curry', 8);
+	add_restaurant_from_script('Pasta La Vista', 14, 'Lisbon', 'Rua PEE', '90', 'Pasta', 'Bolognese', 10);
+	add_restaurant_from_script('Spaghetto' 'Lisbon', 'Rua TC', '7', 'Italian', 'Carbonara', 10);
+	add_restaurant_from_script('Wok Noodles', 14, 'Lisbon', 'Rua AM2', '5', 'Chinese', 'Pequin Duck', 6);
 END;
 /
 
