@@ -705,16 +705,16 @@ CREATE OR REPLACE VIEW restaurant_lowest_fee AS
 
 -- View the first and secon most popular categories
 CREATE OR REPLACE VIEW most_popular_category AS 
-	SELECT categoryName, COUNT(*) AS restaurants_in_category
+	SELECT Categories.categoryName, COUNT(*) AS restaurants_in_category
 	FROM Categories INNER JOIN Has_Categories ON (Categories.categoryName = Has_Categories.categoryName)
 	WHERE ROWNUM = 1
-	GROUP BY Has_Categories.categoryName;
+	GROUP BY Categories.categoryName;
 
 CREATE OR REPLACE VIEW second_most_popular_category AS 
-	SELECT categoryName, COUNT(*) AS restaurants_in_category
+	SELECT Categories.categoryName, COUNT(*) AS restaurants_in_category
 	FROM Categories INNER JOIN Has_Categories ON (Categories.categoryName = Has_Categories.categoryName)
 	WHERE ROWNUM = 2
-	GROUP BY Has_Categories.categoryName;
+	GROUP BY Categories.categoryName;
 
 -- View the cities with restaurants of the 2 most popular categories
 CREATE OR REPLACE VIEW cities_with_popular_categories AS
