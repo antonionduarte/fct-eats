@@ -523,7 +523,7 @@ BEGIN
 
 	INSERT INTO Couriers VALUES (courier_email, courier_driverLicense, courier_NIB);
 	INSERT INTO Vehicles VALUES (vehicle_regNumber, vehicle_type, courier_email);
-	
+
 END;
 /
 
@@ -706,13 +706,13 @@ CREATE OR REPLACE VIEW restaurant_lowest_fee AS
 -- View the first and secon most popular categories
 CREATE OR REPLACE VIEW most_popular_category AS 
 	SELECT categoryName, COUNT(*) AS restaurants_in_category
-	FROM Has_Categories INNER JOIN Restaurants ON (Has_Categories.restaurantID = Restaurants.restaurantID)
+	FROM Categories INNER JOIN Has_Categories USING (categoryName)
 	WHERE ROWNUM = 1
 	GROUP BY Has_Categories.categoryName;
 
 CREATE OR REPLACE VIEW second_most_popular_category AS 
 	SELECT categoryName, COUNT(*) AS restaurants_in_category
-	FROM Has_Categories INNER JOIN Restaurants ON (Has_Categories.restaurantID = Restaurants.restaurantID)
+	FROM Categories INNER JOIN Has_Categories USING (categoryName)
 	WHERE ROWNUM = 2
 	GROUP BY Has_Categories.categoryName;
 
