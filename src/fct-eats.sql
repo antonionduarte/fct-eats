@@ -154,7 +154,6 @@ ALTER TABLE Restaurants ADD CONSTRAINT valid_deliveryFee CHECK (deliveryFee >= 0
 ALTER TABLE Restaurants ADD CONSTRAINT un_restaurantName UNIQUE (restaurantName);
 
 ALTER TABLE Orders ADD CONSTRAINT pk_order PRIMARY KEY (orderID);
-ALTER TABLE Orders ADD CONSTRAINT un_restaurantID UNIQUE (restaurantID);
 ALTER TABLE Orders ADD CONSTRAINT valid_orderID CHECK (orderID >= 0);
 ALTER TABLE Orders ADD CONSTRAINT fk_order1 FOREIGN KEY (clientEmail) REFERENCES Clients (email);
 ALTER TABLE Orders ADD CONSTRAINT fk_order2 FOREIGN KEY (courierEmail) REFERENCES Couriers (email);
@@ -534,7 +533,7 @@ CREATE OR REPLACE PROCEDURE insert_order (
 ) AS
 new_order_id NUMBER;
 BEGIN
-    new_order_id := seq_order_id.nextval;
+  new_order_id := seq_order_id.nextval;
     
 	INSERT INTO Orders VALUES (new_order_id, client_email, courier_email, tip, 'processing', restaurant_id, SYSDATE);
 
@@ -809,15 +808,9 @@ END;
 -- Some Orders
 BEGIN
  insert_order('gabriela@mail.com', 'tai@mail.com', 12, get_restaurant_ID('Burger King'), 'Whopper', 'koJbqIsyYVf2ZPvp');
- insert_order('gabriela@mail.com', 'musk@mail.com', 0, get_restaurant_ID('Talking Trees'), 'Pho ga', NULL);
  insert_order('amd@mail.com', 'lp@mail.com', 5, get_restaurant_ID('Sushi King'), 'Sashimi', 'koJbqIsyYVf2ZPvp');
  insert_order('david@mail.com', 'johnmars@mail.com', 1, get_restaurant_ID('Tandori'), 'Curry', 'koJbqIsyYVf2ZPvp');
- -- insert_order('goncalo@mail.com', 'tai@mail.com', 6, get_restaurant_ID('Wok Noodles'), 'Stir fry', 'koJbqIsyYVf2ZPvp');
- -- insert_order('goncalo@mail.com', 'musk@mail.com', 9, get_restaurant_ID('Burger King'), 'Whopper', NULL);
- -- insert_order('goncalo@mail.com', 'johnmars@mail.com', 10, get_restaurant_ID('Burger King'), 'Whopper', NULL);
  insert_order('carlos@mail.com', 'ash@mail.com', 17, get_restaurant_ID('Sushi King'), 'Sashimi', 'koJbqIsyYVf2ZPvp');
- -- insert_order('gabriela@mail.com', 'tai@mail.com', 3, get_restaurant_ID('Wok Noodles'), 'Stir fry', NULL);
- -- insert_order('tony@mail.com', 'tai@mail.com', 21, get_restaurant_ID('Burger King'), 'Whopper', 'koJbqIsyYVf2ZPvp');
 END;
 /
 
@@ -827,7 +820,6 @@ BEGIN
 	update_order(2, 'received');
 	update_order(4, 'received');
 	update_order(5, 'received');
-	update_order(7, 'received');
 END;
 /
 
@@ -835,6 +827,5 @@ END;
 -- Adding ratings to orders
 INSERT INTO Ratings VALUES (4, 'Nice', 1);
 INSERT INTO Ratings VALUES (1, 'Awful', 2);
-INSERT INTO Ratings VALUES (5, 'Fantastic', 4);
-INSERT INTO Ratings VALUES (4, 'Great food', 5);
-INSERT INTO Ratings VALUES (2, 'Meh', 7);
+INSERT INTO Ratings VALUES (5, 'Fantastic', 3);
+INSERT INTO Ratings VALUES (5, 'Great food', 4);
