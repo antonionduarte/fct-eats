@@ -582,7 +582,7 @@ BEGIN
 	total_cost := 0.00; 
 	discount_code := NULL;
 
-	FOR mp IN menus_price LOOP 
+	FOR mp IN menus_price LOOP
 		total_cost := total_cost + mp.price; 
 	END LOOP; 
 
@@ -604,7 +604,8 @@ BEGIN
 	SELECT tip INTO order_tip FROM Orders WHERE orderID = order_id; 
 	 
 	RETURN total_cost; 
-END; 
+END;
+/
 
 -- Views
 
