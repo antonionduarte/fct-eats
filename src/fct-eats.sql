@@ -547,12 +547,20 @@ ORDER BY firstName;
 
 -- View for Orders
 CREATE OR REPLACE VIEW view_orders AS
-SELECT *
-FROM Orders LEFT OUTER JOIN Used_Discount USING (orderID);
+SELECT 
+order_client.firstName AS Client,
+order_courier.firstName AS Courier,
+order_restaurant.restaurantName AS Restaurant,
+tip AS Tip,
+order_discount.code AS DiscountCode
+FROM Orders INNER JOIN Users order_client ON (clientEmail = order_client.email)
+            INNER JOIN Users order_courier ON (courierEmail = order_courier.email)
+						INNER JOIN Restaurants order_restaurant USING (restaurantID)
+						LEFT JOIN Used_Discount order_discount USING (orderID);
 
 -- View for Add Menu
 CREATE OR REPLACE VIEW add_menu_available AS
-SELECT * 
+SELECT *
 FROM Menus;
 
 -- View the restaurants available for a certain user
