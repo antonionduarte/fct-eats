@@ -395,7 +395,7 @@ BEGIN
 END; 
 /
 
--- Ensure we can't add food to a closed order
+-- Ensure we can't add food to a closed order or a order that's already en route.
 CREATE OR REPLACE TRIGGER ensure_order_open
 BEFORE INSERT ON Ordered_Food
 FOR EACH ROW
@@ -406,6 +406,10 @@ BEGIN
 	IF (order_state = 'received')
 		THEN Raise_Application_Error (-20002, 'You can not add food to an already finished order');
 	END IF; 
+
+	IF (order_state = 'en route')
+		THEN Raise_Application_Error (-20003, 'You can not add food to an order that is already en route');
+	END IF;
 END;
 /
 
@@ -505,13 +509,12 @@ CREATE OR REPLACE PROCEDURE insert_order (
 	client_email IN VARCHAR2,
 	courier_email IN VARCHAR2,
 	tip IN NUMBER,
-	status IN VARCHAR2,
 	restaurant_id IN NUMBER,
 	menu_name IN VARCHAR2,
 	discount_code IN VARCHAR2
 ) AS
 BEGIN
-	INSERT INTO Orders VALUES (order_id, client_email, courier_email, tip, status, restaurant_id, SYSDATE);
+	INSERT INTO Orders VALUES (order_id, client_email, courier_email, tip, 'processing', restaurant_id, SYSDATE);
 
 	INSERT INTO Ordered_Food VALUES (menu_name, restaurant_id, order_id);
 
