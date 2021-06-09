@@ -621,15 +621,13 @@ CREATE OR REPLACE VIEW best_restaurant AS
 	ORDER BY restaurant_rating;
 
 -- View the lowest delivery fee
-CREATE OR REPLACE VIEW lowest_fee AS
-    SELECT MIN (deliveryFee) AS deliveryFee
-    FROM Restaurants;
-    
--- Restaurants with lowest delivery fee
-CREATE OR REPLACE VIEW restaurant_lowest_fee AS
-    SELECT restaurantName
-    FROM Restaurants
-    WHERE deliveryFee = (SELECT deliveryFee FROM lowest_fee);
+CREATE OR REPLACE VIEW restaurant_lowest_fee
+	SELECT restaurantName
+	FROM Restaurants
+	WHERE deliveryFee = (
+			SELECT Min (deliveryFee) FROM Restaurants WHERE city = :P4_CITIES
+	)
+	AND city = :P4_CITIES;
 
 -- Insertions
 
