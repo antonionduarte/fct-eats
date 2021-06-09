@@ -582,7 +582,7 @@ BEGIN
 	total_cost := 0.00; 
 	discount_code := NULL;
 
-	FOR mp IN menus_price LOOP 
+	FOR mp IN menus_price LOOP
 		total_cost := total_cost + mp.price; 
 	END LOOP; 
 
@@ -604,7 +604,8 @@ BEGIN
 	SELECT tip INTO order_tip FROM Orders WHERE orderID = order_id; 
 	 
 	RETURN total_cost; 
-END; 
+END;
+/
 
 -- Views
 
@@ -748,7 +749,7 @@ BEGIN
 	add_restaurant_from_script('Talking Trees', 2, 'Lisbon', 'Rua LAP', '1', 'Vietnamese', 'Pho', 8);
 	add_restaurant_from_script('Tandori', 4, 'Lisbon', 'Rua BD', '44', 'Indian', 'Curry', 8);
 	add_restaurant_from_script('Pasta La Vista', 4, 'Lisbon', 'Rua PEE', '90', 'Pasta', 'Bolognese', 10);
-	add_restaurant_from_script('Spaghetto', 3, 'Lisbosn', 'Rua TC', '7', 'Italian', 'Carbonara', 10);
+	add_restaurant_from_script('Spaghetto', 3, 'Lisbos', 'Rua TC', '7', 'Italian', 'Carbonara', 10);
 	add_restaurant_from_script('Wok Noodles', 4, 'Lisbon', 'Rua AM2', '5', 'Chinese', 'Pequin Duck', 6);
 END;
 /
