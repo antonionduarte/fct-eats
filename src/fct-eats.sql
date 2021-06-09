@@ -663,9 +663,9 @@ BEGIN
 	insert_courier('Ash', 'Ketchum', 'ash@mail.com', 420420423, 'Almada', 'Travessa da Cidade', '12', '919235A', 'PT52318231');
 	insert_courier('Logan', 'Paul', 'lp@mail.com', 420420424, 'Almada', 'Travessa da Cidade', '12', '919235A', 'PT62318231');
 	insert_courier('Nick', 'Crompton', 'nick@mail.com', 420420425, 'Setúbal', 'Travessa da Cidade', '12', '919235A', 'PT72318231');
-	insert_courier('Artur', 'Morgano', 'antonio@mail.com', 420420426, 'Setúbal', 'Travessa da Cidade', '12', '919235A', 'PT17318231');
+	insert_courier('Artur', 'Morgano', 'am@mail.com', 420420426, 'Setúbal', 'Travessa da Cidade', '12', '919235A', 'PT17318231');
 	insert_courier('Tony', 'Spark', 'spark@mail.com', 420420427, 'New York', 'Travessa da Cidade', '12', '919235A', 'PT82318231');
-	insert_courier('João', 'Martstão', 'antonio@mail.com', 420420428, 'Lisbon', 'Travessa da Cidade', '12', '919235A', 'PT12918231');
+	insert_courier('João', 'Martstão', 'jm@mail.com', 420420428, 'Lisbon', 'Travessa da Cidade', '12', '919235A', 'PT12918231');
 END;
 /
 
