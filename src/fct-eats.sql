@@ -744,7 +744,7 @@ BEGIN
 	add_restaurant_from_script('Talking Trees', 2, 'Lisbon', 'Rua LAP', '1', 'Vietnamese', 'Pho', 8);
 	add_restaurant_from_script('Tandori', 4, 'Lisbon', 'Rua BD', '44', 'Indian', 'Curry', 8);
 	add_restaurant_from_script('Pasta La Vista', 4, 'Lisbon', 'Rua PEE', '90', 'Pasta', 'Bolognese', 10);
-	add_restaurant_from_script('Spaghetto', 3, 'Lisbon', 'Rua TC', '7', 'Italian', 'Carbonara', 10);
+	add_restaurant_from_script('Spaghetto', 3, 'Lisbosn', 'Rua TC', '7', 'Italian', 'Carbonara', 10);
 	add_restaurant_from_script('Wok Noodles', 4, 'Lisbon', 'Rua AM2', '5', 'Chinese', 'Pequin Duck', 6);
 END;
 /
