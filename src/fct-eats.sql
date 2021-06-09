@@ -707,7 +707,8 @@ CREATE OR REPLACE VIEW restaurant_lowest_fee AS
 CREATE OR REPLACE VIEW most_popular_categories AS 
 	SELECT Categories.categoryName, COUNT(*) AS restaurants_in_category
 	FROM Categories INNER JOIN Has_Categories ON (Categories.categoryName = Has_Categories.categoryName)
-	GROUP BY Categories.categoryName;
+	GROUP BY Categories.categoryName
+	ORDER BY restaurants_in_category;
 
 CREATE OR REPLACE VIEW most_popular_category AS 
 	SELECT *
