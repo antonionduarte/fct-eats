@@ -425,6 +425,24 @@ BEGIN
 END;
 /
 
+-- Procedure add restaurant for tests
+CREATE OR REPLACE PROCEDURE add_restaurant (
+	restaurant_name IN VARCHAR2,
+	delivery_fee IN NUMBER,
+	city IN VARCHAR2,
+	street IN VARCHAR2,
+	houseNumber IN NUMBER,
+	category_name IN VARCHAR2)
+	AS
+		restaurant_id NUMBER;
+	BEGIN 
+        restaurant_id := seq_restaurant_id.nextval;
+
+		INSERT INTO Restaurants VALUES (restaurant_name, restaurant_id, delivery_fee, city, street, houseNumber);
+		INSERT INTO Has_Categories VALUES (category_name, restaurant_id);
+	END;
+/
+
 -- Add a discount to a client
 CREATE OR REPLACE PROCEDURE add_discount_client (
 	discount_code IN NUMBER,
@@ -611,3 +629,26 @@ INSERT INTO Categories VALUES ('Italian');
 INSERT INTO Categories VALUES ('Pasta');
 INSERT INTO Categories VALUES ('Indian');
 INSERT INTO Categories VALUES ('Vietnamese');
+
+-- Some restaurants
+BEGIN
+	add_restaurant('McDonalds', 10, 'Lisbon', 'Rua', '12', 'Hamburger');
+	add_restaurant('Burguer King', 12, 'Lisbon', 'Outra Rua', '12', 'Hamburger');
+	add_restaurant('Sushi King', 12, 'Almada', 'Rua Outra', '15', 'Sushi');
+	add_restaurant('Pizzeria', 14, 'Lisbon', 'Outre Rue', '16', 'Pizza');
+END;
+/
+
+-- Some Couriers
+BEGIN
+	insert_courier('António', 'Duarte', 'antonio@mail.com', 420420420, 'Lisbon', 'Travessa da Cidade', '12', '919235A');
+END;
+/
+
+-- Some Clients
+BEGIN
+	insert_client('Gabriela', 'Costa', 'gabriela@mail.com', 421421421, 'Lisbon', 'Outra Travessa', 'card')
+	insert_client('Artur', 'Miguel', 'amd@mail.com', 422422421, 'Almada', 'Travessinha', 'card')
+	insert_client('David', 'Semedo', 'david@mail.com', 423421421, 'Lisbon', 'Rua Grande', 'cash')
+END;
+/
