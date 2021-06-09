@@ -207,19 +207,6 @@ INCREMENT BY 1;
 
 -- Triggers
 
--- Automatically insert new order id from seq.
---CREATE OR REPLACE TRIGGER insert_order_id
---BEFORE INSERT ON Orders
---FOR EACH ROW
---DECLARE
---	new_order_id NUMBER (20);
--- BEGIN
---	SELECT seq_order_id.nextval INTO new_order_id 
---		FROM dual;
---	:new.orderID := new_order_id;
---END;
---/
-
 -- Ensuring that a Courier isn't taking orders outside their city
 CREATE OR REPLACE TRIGGER courier_city_order
 BEFORE INSERT ON Orders
@@ -228,13 +215,13 @@ DECLARE
 	restaurant_city VARCHAR2 (50);
 	courier_city VARCHAR2 (50);
 BEGIN
-	SELECT city INTO restaurant_city
-	FROM Restaurants INNER JOIN Orders USING (restaurantID)
-	WHERE orderID = :new.orderID;
-
 	SELECT city INTO courier_city
 	FROM Couriers INNER JOIN Users USING (email)
 	WHERE email = :new.courierEmail;
+
+	SELECT city INTO restaurant_city
+	FROM Restaurants
+	WHERE restaurantID = :new.restaurantID;
 
 	IF (courier_city <> restaurant_city)
 		THEN Raise_Application_Error (-20001, 'Couriers must deliver in their city.');
@@ -289,13 +276,11 @@ BEGIN
   WHERE Restaurants.restaurantID = :new.restaurantID;
 
   SELECT city INTO clientCity
-  FROM Orders INNER JOIN Users ON (Orders.clientEmail = Users.email)
-  WHERE Orders.orderID = :new.orderId;
+  FROM Users
+  WHERE email = :new.clientEmail;
 
   IF (clientCity <> restaurantCity)
-
   	THEN Raise_Application_Error (-20069, 'Restaurant unavailable.');
-
   END IF;
 END;
 /
@@ -312,10 +297,8 @@ BEGIN
 	WHERE orderID = :new.orderID;
 
 	IF (order_discounts > 0)
-
-    	THEN Raise_Application_Error (-20420, 'Limit of discounts per order exceeded.');
-
-    END IF;
+		THEN Raise_Application_Error (-20420, 'Limit of discounts per order exceeded.');
+	END IF;
 END;
 /
 
