@@ -463,7 +463,7 @@ CREATE OR REPLACE PROCEDURE add_restaurant_from_script (
 
 -- Add a discount to a client
 CREATE OR REPLACE PROCEDURE add_discount_client (
-	discount_code IN NUMBER,
+	discount_code IN VARCHAR2,
 	client_email IN VARCHAR2
 )
 AS
@@ -788,53 +788,53 @@ INSERT INTO Menus VALUES ('Lasagna', get_restaurant_ID('Spaghetto'), 8);
 INSERT INTO Menus VALUES ('Stir fry', get_restaurant_ID('Wok Noodles'), 10);
 
 -- Some Discounts
-INSERT INTO Discounts VALUES ('koJbqIsyYVf2ZPvptNkR', 30);
-INSERT INTO Discounts VALUES ('YmXudLqKqFuo2gVx7T3E', 10);
-INSERT INTO Discounts VALUES ('C6vmreSZh7d32ng2YXim', 20);
-INSERT INTO Discounts VALUES ('hWDUgM5nxV8EqZSG8BTJ', 10);
-INSERT INTO Discounts VALUES ('FOROuUrbc7IqukfEYm0m', 5);
+INSERT INTO Discounts VALUES ('koJbqIsyYVf2ZPvp', 30);
+INSERT INTO Discounts VALUES ('YmXudLqKqFuo2gVx', 10);
+INSERT INTO Discounts VALUES ('C6vmreSZh7d32ng2', 20);
+INSERT INTO Discounts VALUES ('hWDUgM5nxV8EqZSG', 10);
+INSERT INTO Discounts VALUES ('FOROuUrbc7IqukfE', 5);
 
 -- Give users discounts
 BEGIN 
-	add_discount_client('koJbqIsyYVf2ZPvptNkR', 'gabriela@mail.com');
-	add_discount_client('koJbqIsyYVf2ZPvptNkR', 'amd@mail.com');
-	add_discount_client('koJbqIsyYVf2ZPvptNkR', 'david@mail.com');
-	add_discount_client('koJbqIsyYVf2ZPvptNkR', 'goncalo@mail.com');
-	add_discount_client('koJbqIsyYVf2ZPvptNkR', 'tony@mail.com');
-	add_discount_client('koJbqIsyYVf2ZPvptNkR', 'carlos@mail.com');
-	add_discount_client('koJbqIsyYVf2ZPvptNkR', 'matthias@mail.com');
+	add_discount_client('koJbqIsyYVf2ZPvp', 'gabriela@mail.com');
+	add_discount_client('koJbqIsyYVf2ZPvp', 'amd@mail.com');
+	add_discount_client('koJbqIsyYVf2ZPvp', 'david@mail.com');
+	add_discount_client('koJbqIsyYVf2ZPvp', 'goncalo@mail.com');
+	add_discount_client('koJbqIsyYVf2ZPvp', 'tony@mail.com');
+	add_discount_client('koJbqIsyYVf2ZPvp', 'carlos@mail.com');
+	add_discount_client('koJbqIsyYVf2ZPvp', 'matthias@mail.com');
 END;
 /
 
 -- Some Orders
-BEGIN
-  insert_order('gabriela@mail.com', 'tai@mail.com', 12, get_restaurant_ID('Burger King'), 'Whopper', 'koJbqIsyYVf2ZPvptNkR');
-  insert_order('gabriela@mail.com', 'musk@mail.com', 0, get_restaurant_ID('Talking Trees'), 'Pho ga', NULL);
-  insert_order('amd@mail.com', 'lp@mail.com', 5, get_restaurant_ID('Sushi King'), 'Sashimi', 'koJbqIsyYVf2ZPvptNkR');
-  insert_order('david@mail.com', 'johnmars@mail.com', 1, get_restaurant_ID('Tandori'), 'Curry', 'koJbqIsyYVf2ZPvptNkR');
-  insert_order('goncalo@mail.com', 'tai@mail.com', 6, get_restaurant_ID('Wok Noodles'), 'Stir fry', 'koJbqIsyYVf2ZPvptNkR');
-  insert_order('goncalo@mail.com', 'musk@mail.com', 9, get_restaurant_ID('Burger King'), 'Whopper', NULL);
-  insert_order('goncalo@mail.com', 'johnmars@mail.com', 10, get_restaurant_ID('Burger King'), 'Whopper', NULL);
-  insert_order('carlos@mail.com', 'ash@mail.com', 17, get_restaurant_ID('Sushi King'), 'Sashimi', 'koJbqIsyYVf2ZPvptNkR');
-  insert_order('gabriela@mail.com', 'tai@mail.com', 3, get_restaurant_ID('Wok Noodles'), 'Stir fry', NULL);
-  insert_order('tony@mail.com', 'tai@mail.com', 21, get_restaurant_ID('Burger King'), 'Whopper', 'koJbqIsyYVf2ZPvptNkR');
-END;
-/
+--BEGIN
+--  insert_order('gabriela@mail.com', 'tai@mail.com', 12, get_restaurant_ID('Burger King'), 'Whopper', 'koJbqIsyYVf2ZPvptNkR');
+--  insert_order('gabriela@mail.com', 'musk@mail.com', 0, get_restaurant_ID('Talking Trees'), 'Pho ga', NULL);
+--  insert_order('amd@mail.com', 'lp@mail.com', 5, get_restaurant_ID('Sushi King'), 'Sashimi', 'koJbqIsyYVf2ZPvptNkR');
+--  insert_order('david@mail.com', 'johnmars@mail.com', 1, get_restaurant_ID('Tandori'), 'Curry', 'koJbqIsyYVf2ZPvptNkR');
+--  insert_order('goncalo@mail.com', 'tai@mail.com', 6, get_restaurant_ID('Wok Noodles'), 'Stir fry', 'koJbqIsyYVf2ZPvptNkR');
+--  insert_order('goncalo@mail.com', 'musk@mail.com', 9, get_restaurant_ID('Burger King'), 'Whopper', NULL);
+--  insert_order('goncalo@mail.com', 'johnmars@mail.com', 10, get_restaurant_ID('Burger King'), 'Whopper', NULL);
+--  insert_order('carlos@mail.com', 'ash@mail.com', 17, get_restaurant_ID('Sushi King'), 'Sashimi', 'koJbqIsyYVf2ZPvptNkR');
+--  insert_order('gabriela@mail.com', 'tai@mail.com', 3, get_restaurant_ID('Wok Noodles'), 'Stir fry', NULL);
+--  insert_order('tony@mail.com', 'tai@mail.com', 21, get_restaurant_ID('Burger King'), 'Whopper', 'koJbqIsyYVf2ZPvptNkR');
+--END;
+--/
 
 -- Updating some of the orders
-BEGIN 
-	update_order(1, 'received');
-	update_order(2, 'received');
-	update_order(4, 'received');
-	update_order(5, 'received');
-	update_order(7, 'received');
-END;
-/
+--BEGIN 
+--	update_order(1, 'received');
+--	update_order(2, 'received');
+--	update_order(4, 'received');
+--	update_order(5, 'received');
+--	update_order(7, 'received');
+--END;
+--/
 
 
 -- Adding ratings to orders
-INSERT INTO Ratings VALUES (4, 'Nice', 1);
-INSERT INTO Ratings VALUES (1, 'Awful', 2);
-INSERT INTO Ratings VALUES (5, 'Fantastic', 4);
-INSERT INTO Ratings VALUES (4, 'Great food', 5);
-INSERT INTO Ratings VALUES (2, 'Meh', 7);
+--INSERT INTO Ratings VALUES (4, 'Nice', 1);
+--INSERT INTO Ratings VALUES (1, 'Awful', 2);
+--INSERT INTO Ratings VALUES (5, 'Fantastic', 4);
+--INSERT INTO Ratings VALUES (4, 'Great food', 5);
+--INSERT INTO Ratings VALUES (2, 'Meh', 7);
