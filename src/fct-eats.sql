@@ -721,7 +721,6 @@ CREATE OR REPLACE VIEW second_most_popular_category AS
 	FROM most_popular_categories
 	WHERE ROWNUM = 2;
 
-
 -- View the cities with restaurants of the 2 most popular categories
 CREATE OR REPLACE VIEW cities_with_popular_categories AS
 		SELECT Restaurants.city
